@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": null,
+  "latestDate": null,
+  "historySessionCount": 0,
+  "sources": [
+    "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX",
+    "https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes"
+  ],
+  "rankings": []
+}
+

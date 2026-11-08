@@ -1,0 +1,12 @@
+# Local-only Android and Python files from the original workspace
+/android/
+/text1.py
+/requirements.txt
+/taiwan_stock_top3.db
+/__pycache__/
+*.py[cod]
+
+# Local tooling
+.DS_Store
+Thumbs.db
+

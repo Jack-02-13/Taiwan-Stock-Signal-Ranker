@@ -1,0 +1,12 @@
+{
+  "name": "台股訊號排行",
+  "short_name": "台股排行",
+  "description": "台股 15 項技術訊號每日排行",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f7f5",
+  "theme_color": "#f6f7f5"
+}
+

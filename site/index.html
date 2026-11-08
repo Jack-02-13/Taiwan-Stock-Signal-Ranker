@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f6f7f5">
+    <meta name="description" content="依據台股 15 項技術訊號，查看最新交易日與前六個交易日的分數前三名。">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="stylesheet" href="./styles.css">
+    <title>台股訊號排行</title>
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="page-header">
+        <div class="brand-row">
+          <div class="brand-mark" aria-hidden="true">15</div>
+          <div>
+            <p class="eyebrow">TAIWAN STOCK SCREENER</p>
+            <h1>台股訊號排行</h1>
+          </div>
+          <button class="refresh-button" id="refresh-button" type="button" aria-label="重新載入排行">
+            <span class="refresh-icon" aria-hidden="true">↻</span>
+            <span class="refresh-label">更新</span>
+          </button>
+        </div>
+        <div class="header-meta">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span id="data-status" role="status" aria-live="polite">讀取排行資料中…</span>
+        </div>
+      </header>
+
+      <section class="latest-section" aria-labelledby="latest-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">LATEST SESSION</p>
+            <h2 id="latest-title">當日前三名</h2>
+          </div>
+          <div class="latest-date" id="latest-date">尚無資料</div>
+        </div>
+        <p class="section-caption" id="latest-summary">資料由證交所與櫃買中心盤後行情計算。</p>
+        <div class="ranking-list" id="latest-list" aria-live="polite"></div>
+      </section>
+
+      <section class="history-section" aria-labelledby="history-title">
+        <div class="section-heading history-heading">
+          <div>
+            <p class="section-kicker">PREVIOUS SESSIONS</p>
+            <h2 id="history-title">前六個交易日</h2>
+          </div>
+          <span class="heading-note">每格各列前三名</span>
+        </div>
+        <div class="history-grid" id="history-grid"></div>
+      </section>
+
+      <footer class="page-footer">
+        <p class="rule-line">每項訊號 10 分 · 至少 8 項 · 股價高於 10 元 · 成交量至少 2,000 張</p>
+        <p>依分數排序，同分按成交量排序。行情為未還原資料，本頁僅供研究參考。</p>
+        <p id="updated-at"></p>
+      </footer>
+    </main>
+    <script src="./app.js" defer></script>
+  </body>
+</html>
+
