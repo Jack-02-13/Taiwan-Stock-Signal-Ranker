@@ -1,12 +1,26 @@
-# Local-only Android and Python files from the original workspace
-/android/
+# Local-only files from the original workspace
 /text1.py
 /requirements.txt
 /taiwan_stock_top3.db
 /__pycache__/
 *.py[cod]
 
+# Android local settings, databases, and generated files
+/android/.gradle/
+/android/**/.gradle/
+/android/.idea/
+/android/**/.idea/
+/android/local.properties
+/android/**/build/
+/android/**/*.apk
+/android/**/*.aab
+/android/**/*.db
+/android/**/*.sqlite*
+/android/**/*.jks
+/android/**/*.keystore
+/android/**/*.p12
+/android/**/*.pfx
+
 # Local tooling
 .DS_Store
 Thumbs.db
-

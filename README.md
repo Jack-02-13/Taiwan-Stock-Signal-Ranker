@@ -1,26 +1,38 @@
 # 台股 15 項訊號排行
 
-[開啟網站](https://jack-02-13.github.io/Taiwan-Stock-Signal-Ranker/)
+本專案提供網頁版和 Android App，使用臺灣證券交易所與櫃買中心的公開行情，依 15 項技術訊號列出台股排行。
 
-本 repository 的 `main` 分支發佈 GitHub Pages 網頁版。GitHub Actions 會在台灣時間平日約 17:00 更新公開行情與排行資料；網站不需要個人 API 金鑰或後端伺服器。
+## 網頁版
 
-## 排名規則
+[開啟台股訊號排行網站](https://jack-02-13.github.io/Taiwan-Stock-Signal-Ranker/)
 
-- 使用 15 項技術訊號，每項 10 分；至少命中 8 項（80 分）。
-- 收盤價需高於 10 元，成交量至少 2,000 張。
+手機或電腦瀏覽器都可以使用。首頁顯示最近交易日的前三名；下方保留前六個交易日的日期，並只列出各日前三名股名。GitHub Actions 會在台灣時間平日約 17:00 更新排行。
+
+## Android App
+
+Android Studio 原始碼位於 android 資料夾。App 直接從交易所取得公開行情，在手機上計算並保存資料；更新行情時需要網路，已保存的排行可離線查看。
+
+Repository 提供 App 原始碼，不附 APK。請用 Android Studio 開啟 android 資料夾並依照 Android 建置說明建置。
+
+## 排名方式
+
+- 使用 15 項技術訊號，每項 10 分，總分 150 分。
+- 命中至少 8 項（80 分），且收盤價高於 10 元、成交量至少 2,000 張，才會列入排行。
 - 先依分數由高至低排序；同分時依成交量由高至低排序。
-- 首頁顯示最新交易日前三名，下方列出前六個交易日的前三名與日期。
-- Android 版使用相同訊號計算。排行使用未還原 OHLCV，僅供參考，並非投資建議。
+- 顯示符合條件的前三名；歷史區保留前六個交易日日期和前三名股名。
+- 使用未還原 OHLCV，技術訊號可能受除權息或股票分割影響。
 
-## Android 原始碼
+## 專案內容
 
-Android 專案保存在[備份分支](https://github.com/Jack-02-13/Taiwan-Stock-Signal-Ranker/tree/android-current-backup-2026-11-08/android)，可從 GitHub 下載 ZIP 後用 Android Studio 開啟 `android/`。該分支提供原始碼，不包含 APK、手機資料庫或簽章金鑰。
+- site/：GitHub Pages 網頁。
+- scripts/：產生網頁排行資料的程式。
+- android/：Android Studio 專案。
+- .github/workflows/：更新公開排行並部署 site/ 的 GitHub Actions 工作流程。
 
-## 隱私與資料來源
+## 資料與隱私
 
-網站只使用證交所與櫃買中心公開行情，排行由 GitHub Actions 計算。原始碼不含個人存取 token 或 API 金鑰；工作流程使用 GitHub 執行時提供的短效 token 更新資料並部署。`main` 分支發佈網站，Android 原始碼位於上述獨立分支。
+網站與 App 使用交易所公開行情，不需要個人 API 金鑰。Android App 將已下載行情保存在 App 私有資料庫。Repository 不提交 APK、手機資料庫、建置輸出或簽章金鑰；GitHub Pages 工作流程只發布 site/。
 
-- [臺灣證券交易所盤後行情](https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX)
-- [證券櫃檯買賣中心歷史行情](https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes)
-- [櫃買中心 OpenAPI](https://www.tpex.org.tw/openapi/)
+行情來源：[證交所盤後行情](https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX)、[櫃買中心歷史行情](https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes)、[櫃買中心 OpenAPI](https://www.tpex.org.tw/openapi/)。
 
+本排行僅供研究參考，不構成投資建議。
