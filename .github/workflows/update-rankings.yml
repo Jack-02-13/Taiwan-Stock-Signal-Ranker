@@ -3,8 +3,9 @@ name: Update rankings and publish
 on:
   workflow_dispatch:
   schedule:
-    # 09:00 UTC = 17:00 Asia/Taipei, Monday through Friday.
-    - cron: "0 9 * * 1-5"
+    # Retry after market close and avoid GitHub Actions top-of-hour congestion.
+    - cron: "17 9 * * 1-5"
+    - cron: "17 10 * * 1-5"
   push:
     branches:
       - main
