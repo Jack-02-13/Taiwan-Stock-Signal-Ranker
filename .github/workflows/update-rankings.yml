@@ -3,7 +3,10 @@ name: Update rankings and publish
 on:
   workflow_dispatch:
   schedule:
-    # Retry after market close and avoid GitHub Actions top-of-hour congestion.
+    # Taipei time: 14:15, 15:30, 17:17, and 18:17. Early runs retry after
+    # the close; later runs catch delayed exchange data and scheduled-run delays.
+    - cron: "15 6 * * 1-5"
+    - cron: "30 7 * * 1-5"
     - cron: "17 9 * * 1-5"
     - cron: "17 10 * * 1-5"
   push:

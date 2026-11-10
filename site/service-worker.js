@@ -1,4 +1,4 @@
-const CACHE_NAME = "tw-stock-ranker-v3-refresh";
+const CACHE_NAME = "tw-stock-ranker-v4-worker-rankings";
 const BASE_URL = new URL("./", self.registration.scope);
 const RANKINGS_URL = new URL("data/rankings.json", BASE_URL);
 const APP_SHELL = [

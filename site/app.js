@@ -1,12 +1,15 @@
 const statusNode = document.querySelector("#data-status");
 const dateNode = document.querySelector("#latest-date");
+const latestTitleNode = document.querySelector("#latest-title");
 const summaryNode = document.querySelector("#latest-summary");
 const latestList = document.querySelector("#latest-list");
 const historyGrid = document.querySelector("#history-grid");
 const updatedNode = document.querySelector("#updated-at");
 const refreshButton = document.querySelector("#refresh-button");
+const RANKINGS_API_URL = "https://taiwan-stock-ranker-market-data.jack-0213.workers.dev/api/rankings";
 
 const numberFormat = new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 2 });
+let retryTimer = null;
 
 function formatDate(isoDate) {
   if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return "尚無資料";
@@ -150,6 +153,7 @@ function render(data) {
   const latest = rankings[0];
 
   if (!latest) {
+    latestTitleNode.textContent = "尚無排行資料";
     dateNode.textContent = "尚無資料";
     summaryNode.textContent = "排行會在 GitHub Actions 首次成功更新後顯示。";
     renderDayRanking(latestList, null, true);
@@ -159,6 +163,7 @@ function render(data) {
     return;
   }
 
+  latestTitleNode.textContent = `${formatDate(latest.date)} 前三名`;
   dateNode.textContent = formatDate(latest.date);
   summaryNode.textContent = `${Number(latest.qualifiedCount) || 0} 檔符合條件 · 分數優先，同分按成交量排序`;
   renderDayRanking(latestList, latest, true);
@@ -170,24 +175,78 @@ function render(data) {
 async function loadRankings() {
   refreshButton.disabled = true;
   refreshButton.querySelector(".refresh-label").textContent = "載入中";
-  statusNode.textContent = "重新讀取最新已發布排行…";
+  statusNode.textContent = "檢查資料日期並載入最新排行…";
+  let usedWorker = false;
   try {
-    const rankingsUrl = new URL("./data/rankings.json", window.location.href);
-    rankingsUrl.searchParams.set("refresh", String(Date.now()));
-    const response = await fetch(rankingsUrl, {
+    const apiUrl = new URL(RANKINGS_API_URL);
+    apiUrl.searchParams.set("refresh", String(Date.now()));
+    const response = await fetch(apiUrl, {
       cache: "no-store",
       headers: { "Cache-Control": "no-cache" },
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    render(await response.json());
-    statusNode.textContent = `已重新確認最新排行 · ${dateNode.textContent}`;
-  } catch (error) {
-    statusNode.textContent = `更新排行失敗 · 目前顯示 ${dateNode.textContent} 的資料`;
-    console.warn("Unable to refresh published rankings", error);
+    const data = await response.json();
+    render(data);
+    usedWorker = true;
+    if (data.marketDataStatus === "current") {
+      statusNode.textContent = `已取得今日盤後排行 · ${dateNode.textContent}`;
+    } else {
+      statusNode.textContent = `已載入最近交易日排行 · ${dateNode.textContent}`;
+    }
+  } catch (workerError) {
+    console.warn("Unable to refresh rankings from the data service", workerError);
+    try {
+      const rankingsUrl = new URL("./data/rankings.json", window.location.href);
+      rankingsUrl.searchParams.set("refresh", String(Date.now()));
+      const response = await fetch(rankingsUrl, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache" },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      render(await response.json());
+      statusNode.textContent = isTaipeiAfterClose() && getRenderedDate() === getTaipeiDate()
+        ? `已載入今日盤後排行 · ${dateNode.textContent}`
+        : `目前顯示最近交易日排行 · ${dateNode.textContent}`;
+    } catch (error) {
+      statusNode.textContent = `更新排行失敗 · 目前顯示 ${dateNode.textContent} 的資料`;
+      console.warn("Unable to load published rankings", error);
+    }
   } finally {
     refreshButton.disabled = false;
     refreshButton.querySelector(".refresh-label").textContent = "更新";
+    if (retryTimer) clearTimeout(retryTimer);
+    if (isTaipeiAfterClose() && getRenderedDate() !== getTaipeiDate()) {
+      retryTimer = setTimeout(() => loadRankings(), 5 * 60 * 1000);
+      if (!usedWorker) statusNode.textContent = `今日盤後排行尚未更新 · 目前顯示最近交易日 ${dateNode.textContent}`;
+    }
   }
+}
+
+function getTaipeiParts() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit", weekday: "short",
+  }).formatToParts(new Date());
+  return Object.fromEntries(parts.map((part) => [part.type, part.value]));
+}
+
+function getTaipeiDate() {
+  const parts = getTaipeiParts();
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+function isTaipeiAfterClose() {
+  const parts = getTaipeiParts();
+  const isWeekday = !["Sat", "Sun"].includes(parts.weekday);
+  const hour = Number(new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Taipei", hour: "2-digit", hourCycle: "h23",
+  }).format(new Date()));
+  return isWeekday && hour >= 14;
+}
+
+function getRenderedDate() {
+  const text = dateNode.textContent.trim();
+  const match = /^(\d{4})\/(\d{2})\/(\d{2})$/.exec(text);
+  return match ? `${match[1]}-${match[2]}-${match[3]}` : "";
 }
 
 refreshButton.addEventListener("click", loadRankings);

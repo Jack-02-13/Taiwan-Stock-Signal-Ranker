@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T13:57:41Z",
-  "latestDate": "2026-11-09",
+  "generatedAt": "2026-11-10T11:34:26Z",
+  "latestDate": "2026-11-10",
   "historySessionCount": 77,
   "sources": [
     "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX",
@@ -19,6 +19,89 @@
     ]
   },
   "rankings": [
+    {
+      "date": "2026-11-10",
+      "qualifiedCount": 65,
+      "picks": [
+        {
+          "rank": 1,
+          "symbol": "5230",
+          "name": "雷笛克光學",
+          "close": 30.85,
+          "volumeLots": 8029.75,
+          "volumeShares": 8029747,
+          "score": 150,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "MACD動能增強",
+            "RSI 50至70",
+            "KD多方且未過熱",
+            "突破20日高點",
+            "突破60日高點",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 2,
+          "symbol": "3147",
+          "name": "大綜",
+          "close": 351.0,
+          "volumeLots": 2597.49,
+          "volumeShares": 2597493,
+          "score": 150,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "MACD動能增強",
+            "RSI 50至70",
+            "KD多方且未過熱",
+            "突破20日高點",
+            "突破60日高點",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 3,
+          "symbol": "6112",
+          "name": "邁達特",
+          "close": 57.0,
+          "volumeLots": 17327.42,
+          "volumeShares": 17327416,
+          "score": 140,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "MACD動能增強",
+            "KD多方且未過熱",
+            "突破20日高點",
+            "突破60日高點",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        }
+      ]
+    },
     {
       "date": "2026-11-09",
       "qualifiedCount": 48,
@@ -181,7 +264,7 @@
     },
     {
       "date": "2026-11-05",
-      "qualifiedCount": 61,
+      "qualifiedCount": 60,
       "picks": [
         {
           "rank": 1,
@@ -264,7 +347,7 @@
     },
     {
       "date": "2026-11-04",
-      "qualifiedCount": 68,
+      "qualifiedCount": 67,
       "picks": [
         {
           "rank": 1,
@@ -425,7 +508,7 @@
     },
     {
       "date": "2026-11-02",
-      "qualifiedCount": 91,
+      "qualifiedCount": 90,
       "picks": [
         {
           "rank": 1,
@@ -493,86 +576,6 @@
             "MACD多方",
             "MACD動能增強",
             "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        }
-      ]
-    },
-    {
-      "date": "2026-10-30",
-      "qualifiedCount": 95,
-      "picks": [
-        {
-          "rank": 1,
-          "symbol": "2603",
-          "name": "長榮",
-          "close": 271.5,
-          "volumeLots": 23405.9,
-          "volumeShares": 23405895,
-          "score": 140,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 2,
-          "symbol": "2516",
-          "name": "新建",
-          "close": 16.25,
-          "volumeLots": 2191.24,
-          "volumeShares": 2191244,
-          "score": 140,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 3,
-          "symbol": "2352",
-          "name": "佳世達",
-          "close": 33.8,
-          "volumeLots": 79259.67,
-          "volumeShares": 79259674,
-          "score": 130,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
             "突破20日高點",
             "突破60日高點",
             "成交量放大",

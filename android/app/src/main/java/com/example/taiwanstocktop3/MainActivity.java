@@ -2,18 +2,24 @@ package com.example.taiwanstocktop3;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -40,27 +46,43 @@ public final class MainActivity extends Activity {
     private static final String UPDATE_ATTEMPTED_AT = "last-attempted-check-time";
     private static final long UPDATE_CHECK_INTERVAL_MS = 12L * 60 * 60 * 1000;
     private static final long UPDATE_RETRY_INTERVAL_MS = 15L * 60 * 1000;
+    private static final String APPEARANCE_PREFS = "appearance";
+    private static final String DARK_MODE_KEY = "dark-mode";
 
     private final ExecutorService syncExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService networkPool = Executors.newFixedThreadPool(4);
     private final ExecutorService updateCheckExecutor = Executors.newSingleThreadExecutor();
     private StockDatabase database;
+    private LinearLayout root;
+    private LinearLayout header;
     private LinearLayout content;
+    private FrameLayout themeControl;
+    private View themeSelectionIndicator;
     private TextView status;
     private TextView updateCheckLink;
+    private TextView darkModeButton;
+    private TextView lightModeButton;
     private Button refreshButton;
     private boolean syncing = false;
     private boolean checkingForUpdate = false;
+    private boolean darkMode;
 
-    private static final int NAVY = Color.rgb(20, 43, 59);
-    private static final int GREEN = Color.rgb(45, 126, 98);
-    private static final int PAGE = Color.rgb(244, 246, 245);
-    private static final int MUTED = Color.rgb(104, 119, 127);
+    private int HEADER;
+    private int NAVY;
+    private int GREEN;
+    private int PAGE;
+    private int CARD;
+    private int MUTED;
     private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("M/d (E)", Locale.TAIWAN);
+    private static final DateTimeFormatter TITLE_DATE = DateTimeFormatter.ofPattern("yyyy/MM/dd", Locale.TAIWAN);
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         database = new StockDatabase(this);
+        darkMode = getSharedPreferences(APPEARANCE_PREFS, MODE_PRIVATE)
+                .getBoolean(DARK_MODE_KEY, false);
+        updateThemeColors();
+        applySystemBarColors();
         buildScreen();
         checkForAppUpdate(false);
         syncExecutor.execute(() -> {
@@ -71,15 +93,16 @@ public final class MainActivity extends Activity {
     }
 
     private void buildScreen() {
-        LinearLayout root = new LinearLayout(this);
+        root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(PAGE);
         root.setPadding(0, dp(36), 0, 0);
 
-        LinearLayout header = new LinearLayout(this);
+        header = new LinearLayout(this);
         header.setOrientation(LinearLayout.VERTICAL);
         header.setPadding(dp(20), dp(18), dp(20), dp(16));
-        header.setBackgroundColor(NAVY);
+        header.setBackgroundColor(HEADER);
+        header.setTag("theme-header");
 
         LinearLayout headingRow = new LinearLayout(this);
         headingRow.setGravity(Gravity.CENTER_VERTICAL);
@@ -91,30 +114,68 @@ public final class MainActivity extends Activity {
         titleStack.addView(subtitle);
         headingRow.addView(titleStack, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
 
+        themeControl = new FrameLayout(this);
+        themeControl.setClipChildren(true);
+        themeControl.setClipToPadding(true);
+        themeControl.setBackground(glassTrackBackground());
+        themeSelectionIndicator = new View(this);
+        themeSelectionIndicator.setBackground(glassSelectionBackground(GREEN));
+        FrameLayout.LayoutParams indicatorParams = new FrameLayout.LayoutParams(dp(54), dp(42),
+                Gravity.TOP | Gravity.START);
+        indicatorParams.leftMargin = dp(3);
+        indicatorParams.topMargin = dp(3);
+        themeControl.addView(themeSelectionIndicator, indicatorParams);
+
+        LinearLayout themeOptions = new LinearLayout(this);
+        themeOptions.setOrientation(LinearLayout.HORIZONTAL);
+        themeOptions.setGravity(Gravity.CENTER);
+        themeOptions.setPadding(dp(3), dp(3), dp(3), dp(3));
+        darkModeButton = themeOption("深色", darkMode, true);
+        lightModeButton = themeOption("淺色", !darkMode, false);
+        themeOptions.addView(darkModeButton, new LinearLayout.LayoutParams(dp(54), dp(42)));
+        themeOptions.addView(lightModeButton, new LinearLayout.LayoutParams(dp(54), dp(42)));
+        themeControl.addView(themeOptions, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        themeSelectionIndicator.setTranslationX(darkMode ? 0 : dp(54));
+        headingRow.addView(themeControl, new LinearLayout.LayoutParams(dp(114), dp(48)));
+        header.addView(headingRow);
+
         refreshButton = new Button(this);
         refreshButton.setText("更新資料");
         refreshButton.setTextColor(Color.WHITE);
         refreshButton.setAllCaps(false);
         refreshButton.setBackground(tint(GREEN, 18));
         refreshButton.setOnClickListener(view -> syncMarkets());
-        headingRow.addView(refreshButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(44)));
-        header.addView(headingRow);
+        refreshButton.setEnabled(!syncing);
+        if (syncing) refreshButton.setText("更新中…");
 
         status = label("正在讀取手機內的行情紀錄…", 12, Color.rgb(214, 228, 231), false);
-        LinearLayout.LayoutParams statusLp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        statusLp.topMargin = dp(10);
-        header.addView(status, statusLp);
-
-        updateCheckLink = label("App v" + BuildConfig.VERSION_NAME + " · 檢查更新", 11,
+        status.setSingleLine(true);
+        status.setEllipsize(TextUtils.TruncateAt.END);
+        updateCheckLink = label("v" + BuildConfig.VERSION_NAME + " · 檢查更新", 11,
                 Color.rgb(203, 218, 224), false);
         updateCheckLink.setClickable(true);
         updateCheckLink.setFocusable(true);
         updateCheckLink.setOnClickListener(view -> checkForAppUpdate(true));
-        LinearLayout.LayoutParams updateCheckLp = new LinearLayout.LayoutParams(
+        updateCheckLink.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout statusStack = new LinearLayout(this);
+        statusStack.setOrientation(LinearLayout.VERTICAL);
+        statusStack.addView(status);
+        LinearLayout.LayoutParams updateLinkLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        updateCheckLp.topMargin = dp(6);
-        header.addView(updateCheckLink, updateCheckLp);
+        updateLinkLp.topMargin = dp(6);
+        statusStack.addView(updateCheckLink, updateLinkLp);
+
+        LinearLayout statusRow = new LinearLayout(this);
+        statusRow.setGravity(Gravity.CENTER_VERTICAL);
+        statusRow.addView(statusStack, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        statusRow.addView(refreshButton, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, dp(44)));
+        LinearLayout.LayoutParams statusRowLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        statusRowLp.topMargin = dp(10);
+        header.addView(statusRow, statusRowLp);
         root.addView(header);
 
         ScrollView scroll = new ScrollView(this);
@@ -122,10 +183,135 @@ public final class MainActivity extends Activity {
         content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(dp(14), dp(14), dp(14), dp(22));
+        content.setTag("theme-page");
         scroll.addView(content);
         root.addView(scroll, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
         setContentView(root);
+    }
+
+    private TextView themeOption(String text, boolean selected, boolean darkSelection) {
+        TextView option = label(text, 12, selected ? Color.WHITE : Color.rgb(203, 218, 224), selected);
+        option.setGravity(Gravity.CENTER);
+        option.setPadding(dp(4), 0, dp(4), 0);
+        option.setBackgroundColor(Color.TRANSPARENT);
+        option.setClickable(true);
+        option.setFocusable(true);
+        option.setContentDescription(darkSelection ? "切換深色模式" : "切換淺色模式");
+        option.setOnClickListener(view -> setDarkMode(darkSelection));
+        return option;
+    }
+
+    private void setDarkMode(boolean enabled) {
+        if (darkMode == enabled) return;
+        darkMode = enabled;
+        getSharedPreferences(APPEARANCE_PREFS, MODE_PRIVATE).edit()
+                .putBoolean(DARK_MODE_KEY, darkMode)
+                .apply();
+        updateThemeColors();
+        applySystemBarColors();
+        root.setBackgroundColor(PAGE);
+        header.setBackgroundColor(HEADER);
+        refreshButton.setBackground(tint(GREEN, 18));
+        updateThemeOption(darkModeButton, darkMode);
+        updateThemeOption(lightModeButton, !darkMode);
+        themeSelectionIndicator.setBackground(glassSelectionBackground(GREEN));
+        animateThemeSelection(darkMode);
+        applyThemeTextColors(root);
+    }
+
+    private void updateThemeOption(TextView option, boolean selected) {
+        option.setTextColor(selected ? Color.WHITE : Color.rgb(203, 218, 224));
+        option.setTypeface(Typeface.DEFAULT, selected ? Typeface.BOLD : Typeface.NORMAL);
+    }
+
+    private void animateThemeSelection(boolean selectDark) {
+        themeSelectionIndicator.animate().cancel();
+        themeSelectionIndicator.animate()
+                .translationX(selectDark ? 0 : dp(54))
+                .setDuration(280)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator(1.5f))
+                .start();
+    }
+
+    private GradientDrawable glassTrackBackground() {
+        GradientDrawable background = new GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{Color.argb(170, 10, 24, 32), Color.argb(135, 28, 48, 58)});
+        background.setCornerRadius(dp(18));
+        background.setStroke(dp(1), Color.argb(105, 255, 255, 255));
+        return background;
+    }
+
+    private GradientDrawable glassSelectionBackground(int accent) {
+        int highlight = blendColor(accent, Color.WHITE, 0.42f);
+        int middle = blendColor(accent, Color.WHITE, 0.12f);
+        int shade = blendColor(accent, Color.BLACK, 0.18f);
+        GradientDrawable background = new GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{withAlpha(highlight, 238), withAlpha(middle, 218), withAlpha(shade, 205)});
+        background.setCornerRadius(dp(18));
+        background.setStroke(dp(1), Color.argb(175, 255, 255, 255));
+        return background;
+    }
+
+    private int blendColor(int foreground, int background, float ratio) {
+        float inverse = 1f - ratio;
+        return Color.rgb(
+                Math.round(Color.red(foreground) * inverse + Color.red(background) * ratio),
+                Math.round(Color.green(foreground) * inverse + Color.green(background) * ratio),
+                Math.round(Color.blue(foreground) * inverse + Color.blue(background) * ratio));
+    }
+
+    private int withAlpha(int color, int alpha) {
+        return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
+    }
+
+    private void applyThemeTextColors(View view) {
+        Object role = view.getTag();
+        if ("theme-primary".equals(role) && view instanceof TextView) {
+            ((TextView) view).setTextColor(NAVY);
+        } else if ("theme-accent".equals(role) && view instanceof TextView) {
+            ((TextView) view).setTextColor(GREEN);
+        } else if ("theme-muted".equals(role) && view instanceof TextView) {
+            ((TextView) view).setTextColor(MUTED);
+        } else if ("theme-card".equals(role)) {
+            view.setBackground(tint(CARD, 15));
+        }
+
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int index = 0; index < group.getChildCount(); index++) {
+                applyThemeTextColors(group.getChildAt(index));
+            }
+        }
+    }
+
+    private void updateThemeColors() {
+        HEADER = Color.rgb(20, 43, 59);
+        if (darkMode) {
+            NAVY = Color.rgb(232, 238, 242);
+            GREEN = Color.rgb(83, 184, 139);
+            PAGE = Color.rgb(18, 23, 28);
+            CARD = Color.rgb(35, 42, 48);
+            MUTED = Color.rgb(171, 184, 192);
+        } else {
+            NAVY = Color.rgb(20, 43, 59);
+            GREEN = Color.rgb(45, 126, 98);
+            PAGE = Color.rgb(244, 246, 245);
+            CARD = Color.WHITE;
+            MUTED = Color.rgb(104, 119, 127);
+        }
+    }
+
+    private void applySystemBarColors() {
+        getWindow().setStatusBarColor(darkMode ? Color.rgb(11, 29, 40) : Color.WHITE);
+        getWindow().setNavigationBarColor(PAGE);
+        int visibility = getWindow().getDecorView().getSystemUiVisibility();
+        int lightBarFlags = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        getWindow().getDecorView().setSystemUiVisibility(darkMode
+                ? visibility & ~lightBarFlags
+                : visibility | lightBarFlags);
     }
 
     private void checkForAppUpdate(boolean manual) {
@@ -156,7 +342,7 @@ public final class MainActivity extends Activity {
                 if (isFinishing() || isDestroyed()) return;
                 checkingForUpdate = false;
                 updateCheckLink.setEnabled(true);
-                updateCheckLink.setText("App v" + BuildConfig.VERSION_NAME + " · 檢查更新");
+                updateCheckLink.setText("v" + BuildConfig.VERSION_NAME + " · 檢查更新");
                 if (checkFailure != null) {
                     Log.w(TAG, "Unable to check GitHub Releases", checkFailure);
                     if (manual) toast("目前無法連線檢查更新，請稍後再試。");
@@ -227,7 +413,7 @@ public final class MainActivity extends Activity {
         syncing = true;
         refreshButton.setEnabled(false);
         refreshButton.setText("更新中…");
-        setStatus("從證交所與櫃買中心下載行情，分析在手機上執行…");
+        setStatus("正在更新行情…");
         syncExecutor.execute(() -> {
             int done = 0;
             int failures = 0;
@@ -266,7 +452,7 @@ public final class MainActivity extends Activity {
                 done++;
                 final int completedCount = done;
                 final int taskCount = total;
-                runOnUiThread(() -> setStatus("下載行情中 " + completedCount + " / " + taskCount));
+                runOnUiThread(() -> setStatus("更新行情 " + completedCount + "/" + taskCount));
             }
 
             database.trimBefore(today.minusDays(180));
@@ -308,7 +494,8 @@ public final class MainActivity extends Activity {
         }
 
         MarketData.DayRanking latest = rankings.get(0);
-        addSectionTitle("今日前三名", latest.qualifiedCount + " 檔符合 · 分數優先，同分看成交量");
+        addSectionTitle(latest.date.format(TITLE_DATE) + " 前三名",
+                latest.qualifiedCount + " 檔符合 · 分數優先，同分看成交量");
         if (latest.picks.isEmpty()) {
             addEmptyMessage("當日沒有股票達到 80 / 150 分及成交門檻。");
         } else {
@@ -334,10 +521,30 @@ public final class MainActivity extends Activity {
         }
         content.addView(grid);
 
-        TextView note = label("日期：" + latest.date.format(DISPLAY_DATE)
-                + " · 每項訊號 10 分；至少 8 項、股價高於 10 元、成交量至少 2,000 張才列入。", 12, MUTED, false);
-        note.setPadding(dp(4), dp(12), dp(4), dp(8));
+        TextView note = label("詳細資料", 13, GREEN, true);
+        note.setGravity(Gravity.CENTER);
+        note.setPadding(dp(4), dp(16), dp(4), dp(16));
+        note.setClickable(true);
+        note.setFocusable(true);
+        note.setContentDescription("查看所有計分條件與排序規則");
+        note.setOnClickListener(view -> showMethodDetails(note));
         content.addView(note);
+
+        LinearLayout footer = new LinearLayout(this);
+        footer.setGravity(Gravity.CENTER_VERTICAL);
+        footer.setPadding(dp(4), dp(6), dp(4), dp(8));
+        TextView creator = label("製作者：Jack-0213", 10, MUTED, false);
+        footer.addView(creator, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        TextView disclaimerLink = label("免責聲明", 10, GREEN, false);
+        disclaimerLink.setGravity(Gravity.CENTER_VERTICAL | Gravity.END);
+        disclaimerLink.setPadding(dp(8), dp(8), 0, dp(8));
+        disclaimerLink.setClickable(true);
+        disclaimerLink.setFocusable(true);
+        disclaimerLink.setContentDescription("開啟免責聲明");
+        disclaimerLink.setOnClickListener(view -> showDisclaimer(disclaimerLink));
+        footer.addView(disclaimerLink);
+        content.addView(footer);
     }
 
     private void addSectionTitle(String title, String detail) {
@@ -369,17 +576,298 @@ public final class MainActivity extends Activity {
         mainRow.addView(details, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         mainRow.addView(label(pick.score + "/150", 14, GREEN, true));
         card.addView(mainRow);
-        if (!pick.signals.isEmpty()) {
-            TextView signalText = label(joinSignals(pick.signals), 11, MUTED, false);
-            LinearLayout.LayoutParams signalParams = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            signalParams.topMargin = dp(7);
-            card.addView(signalText, signalParams);
-        }
+        card.setClickable(true);
+        card.setFocusable(true);
+        card.setContentDescription("查看" + name + "的達成條件");
+        card.setOnClickListener(view -> showPickDetails(pick, card));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.bottomMargin = dp(8);
         content.addView(card, params);
+    }
+
+    private void showPickDetails(MarketData.Pick pick, View sourceCard) {
+        LinearLayout floatingCard = createFloatingCard();
+
+        String stockName = pick.name == null || pick.name.trim().isEmpty()
+                ? pick.symbol : pick.name;
+        LinearLayout heading = new LinearLayout(this);
+        heading.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout titleStack = new LinearLayout(this);
+        titleStack.setOrientation(LinearLayout.VERTICAL);
+        titleStack.addView(label(stockName, 19, NAVY, true));
+        titleStack.addView(label(pick.symbol + " · 第 " + pick.rank + " 名", 12, MUTED, false));
+        heading.addView(titleStack, new LinearLayout.LayoutParams(0,
+                ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        heading.addView(label(pick.score + "/150", 17, GREEN, true));
+        floatingCard.addView(heading);
+
+        TextView marketSummary = label(String.format(Locale.TAIWAN,
+                "收盤 %.2f 元  ·  成交 %.0f 張", pick.close, pick.volumeLots), 12, MUTED, false);
+        LinearLayout.LayoutParams marketSummaryParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        marketSummaryParams.topMargin = dp(7);
+        floatingCard.addView(marketSummary, marketSummaryParams);
+
+        View headerDivider = new View(this);
+        headerDivider.setBackgroundColor(darkMode
+                ? Color.argb(48, 255, 255, 255) : Color.argb(28, 20, 43, 59));
+        LinearLayout.LayoutParams headerDividerParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(1));
+        headerDividerParams.topMargin = dp(13);
+        headerDividerParams.bottomMargin = dp(11);
+        floatingCard.addView(headerDivider, headerDividerParams);
+
+        LinearLayout conditionHeading = new LinearLayout(this);
+        conditionHeading.setGravity(Gravity.CENTER_VERTICAL);
+        conditionHeading.addView(label("達成條件", 14, NAVY, true),
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        conditionHeading.addView(label(pick.signals.size() + " 項", 12, MUTED, false));
+        floatingCard.addView(conditionHeading);
+
+        ScrollView conditionsScroll = new ScrollView(this);
+        conditionsScroll.setFillViewport(false);
+        conditionsScroll.setVerticalScrollBarEnabled(true);
+        LinearLayout conditionsList = new LinearLayout(this);
+        conditionsList.setOrientation(LinearLayout.VERTICAL);
+        if (pick.signals.isEmpty()) {
+            TextView empty = label("目前沒有達成條件。", 13, MUTED, false);
+            empty.setPadding(0, dp(12), 0, dp(8));
+            conditionsList.addView(empty);
+        } else {
+            for (int index = 0; index < pick.signals.size(); index++) {
+                LinearLayout conditionRow = new LinearLayout(this);
+                conditionRow.setGravity(Gravity.CENTER_VERTICAL);
+                conditionRow.setPadding(0, dp(7), 0, dp(7));
+                conditionRow.addView(label("✓", 14, GREEN, true),
+                        new LinearLayout.LayoutParams(dp(28), ViewGroup.LayoutParams.WRAP_CONTENT));
+                conditionRow.addView(label(pick.signals.get(index), 14, NAVY, false),
+                        new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+                conditionsList.addView(conditionRow);
+                if (index < pick.signals.size() - 1) {
+                    View rowDivider = new View(this);
+                    rowDivider.setBackgroundColor(darkMode
+                            ? Color.argb(30, 255, 255, 255) : Color.argb(22, 20, 43, 59));
+                    conditionsList.addView(rowDivider, new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT, dp(1)));
+                }
+            }
+        }
+        conditionsScroll.addView(conditionsList);
+        LinearLayout.LayoutParams conditionsScrollParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                Math.min(dp(380), Math.max(dp(72), dp(pick.signals.size() * 42 + 8))));
+        conditionsScrollParams.topMargin = dp(3);
+        floatingCard.addView(conditionsScroll, conditionsScrollParams);
+
+        TextView closeHint = label("點擊模糊處關閉", 11, MUTED, false);
+        closeHint.setGravity(Gravity.END);
+        LinearLayout.LayoutParams closeHintParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        closeHintParams.topMargin = dp(8);
+        floatingCard.addView(closeHint, closeHintParams);
+
+        showFloatingOverlay(sourceCard, floatingCard);
+    }
+
+    private void showMethodDetails(View sourceView) {
+        LinearLayout floatingCard = createFloatingCard();
+        floatingCard.addView(label("詳細資料", 19, NAVY, true));
+        TextView scoreSummary = label("15 項技術指標，每符合 1 項加 10 分，最高 150 分。",
+                13, MUTED, false);
+        LinearLayout.LayoutParams scoreSummaryParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        scoreSummaryParams.topMargin = dp(5);
+        floatingCard.addView(scoreSummary, scoreSummaryParams);
+
+        ScrollView detailsScroll = new ScrollView(this);
+        detailsScroll.setFillViewport(false);
+        detailsScroll.setVerticalScrollBarEnabled(true);
+        LinearLayout detailsList = new LinearLayout(this);
+        detailsList.setOrientation(LinearLayout.VERTICAL);
+
+        addMethodSection(detailsList, "入選門檻");
+        addMethodBullet(detailsList, "至少符合 8 項條件（80 分）");
+        addMethodBullet(detailsList, "收盤價高於 10 元");
+        addMethodBullet(detailsList, "成交量至少 2,000 張");
+        addMethodBullet(detailsList, "至少有 70 個交易日資料才會計算");
+        addMethodBullet(detailsList, "符合門檻後取分數前三名；同分時成交量較大者優先");
+
+        addMethodSection(detailsList, "15 項計分條件（每項 10 分）");
+        String[][] rules = {
+                {"收盤高於 20 日線", "當日收盤價 > 20 日平均收盤價"},
+                {"20 日線高於 60 日線", "20 日均線 > 60 日均線"},
+                {"60 日線上彎", "目前 60 日均線 > 10 個交易日前的 60 日均線"},
+                {"20 日線上彎", "目前 20 日均線 > 5 個交易日前的 20 日均線"},
+                {"MACD 多方", "MACD 線（EMA12 − EMA26）> 訊號線"},
+                {"MACD 動能增強", "今日 MACD 柱狀體 > 前一交易日"},
+                {"RSI 50 至 70", "14 日 RSI 介於 50 到 70，含上下限"},
+                {"KD 多方且未過熱", "K 值 > D 值，且 K 值 < 80"},
+                {"突破 20 日高點", "收盤價 > 前 20 個交易日最高價"},
+                {"突破 60 日高點", "收盤價 > 前 60 個交易日最高價"},
+                {"成交量放大", "今日成交量 > 前 20 日均量的 1.2 倍"},
+                {"OBV 偏多", "今日 OBV > 近 20 個交易日 OBV 均值"},
+                {"MFI 偏多", "14 日 MFI > 50"},
+                {"ADX 趨勢偏多", "ADX > 20，且 +DI > −DI"},
+                {"20 日報酬為正", "今日收盤價 > 20 個交易日前收盤價"}
+        };
+        for (int index = 0; index < rules.length; index++) {
+            addMethodRule(detailsList, index + 1, rules[index][0], rules[index][1]);
+        }
+
+        detailsScroll.addView(detailsList);
+        int maxScrollHeight = Math.min(dp(430),
+                Math.round(getResources().getDisplayMetrics().heightPixels * 0.55f));
+        LinearLayout.LayoutParams detailsScrollParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, maxScrollHeight);
+        detailsScrollParams.topMargin = dp(10);
+        floatingCard.addView(detailsScroll, detailsScrollParams);
+
+        TextView closeHint = label("點擊模糊處關閉", 11, MUTED, false);
+        closeHint.setGravity(Gravity.END);
+        LinearLayout.LayoutParams closeHintParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        closeHintParams.topMargin = dp(8);
+        floatingCard.addView(closeHint, closeHintParams);
+        showFloatingOverlay(sourceView, floatingCard);
+    }
+
+    private void showDisclaimer(View sourceView) {
+        LinearLayout floatingCard = createFloatingCard();
+        floatingCard.addView(label("免責聲明", 19, NAVY, true));
+        TextView disclaimer = label(
+                "本 App 依公開行情與技術條件產生排名，僅供資訊參考，不保證獲利。買賣決策及投資風險由使用者自行評估並承擔。",
+                14, NAVY, false);
+        disclaimer.setLineSpacing(dp(4), 1f);
+        LinearLayout.LayoutParams disclaimerParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        disclaimerParams.topMargin = dp(12);
+        floatingCard.addView(disclaimer, disclaimerParams);
+
+        TextView closeHint = label("點擊模糊處關閉", 11, MUTED, false);
+        closeHint.setGravity(Gravity.END);
+        LinearLayout.LayoutParams closeHintParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        closeHintParams.topMargin = dp(8);
+        floatingCard.addView(closeHint, closeHintParams);
+        showFloatingOverlay(sourceView, floatingCard);
+    }
+
+    private LinearLayout createFloatingCard() {
+        LinearLayout floatingCard = new LinearLayout(this);
+        floatingCard.setOrientation(LinearLayout.VERTICAL);
+        floatingCard.setPadding(dp(20), dp(18), dp(20), dp(16));
+        GradientDrawable floatingBackground = tint(CARD, 22);
+        floatingBackground.setStroke(dp(1), darkMode
+                ? Color.argb(75, 255, 255, 255) : Color.argb(38, 20, 43, 59));
+        floatingCard.setBackground(floatingBackground);
+        floatingCard.setElevation(dp(20));
+        floatingCard.setClickable(true);
+        floatingCard.setFocusable(true);
+        floatingCard.setOnClickListener(view -> { });
+        return floatingCard;
+    }
+
+    private void addMethodSection(LinearLayout parent, String title) {
+        TextView section = label(title, 14, NAVY, true);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.topMargin = dp(12);
+        parent.addView(section, params);
+    }
+
+    private void addMethodBullet(LinearLayout parent, String text) {
+        LinearLayout row = new LinearLayout(this);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(4), 0, dp(4));
+        row.addView(label("•", 14, GREEN, true),
+                new LinearLayout.LayoutParams(dp(22), ViewGroup.LayoutParams.WRAP_CONTENT));
+        row.addView(label(text, 12, NAVY, false),
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        parent.addView(row);
+    }
+
+    private void addMethodRule(LinearLayout parent, int number, String title, String formula) {
+        LinearLayout row = new LinearLayout(this);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(7), 0, dp(7));
+        TextView index = label(String.format(Locale.TAIWAN, "%02d", number), 12, GREEN, true);
+        row.addView(index, new LinearLayout.LayoutParams(dp(30), ViewGroup.LayoutParams.WRAP_CONTENT));
+        LinearLayout textStack = new LinearLayout(this);
+        textStack.setOrientation(LinearLayout.VERTICAL);
+        textStack.addView(label(title + " · 10 分", 13, NAVY, true));
+        textStack.addView(label(formula, 11, MUTED, false));
+        row.addView(textStack, new LinearLayout.LayoutParams(0,
+                ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        parent.addView(row);
+        View divider = new View(this);
+        divider.setBackgroundColor(darkMode
+                ? Color.argb(30, 255, 255, 255) : Color.argb(22, 20, 43, 59));
+        parent.addView(divider, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(1)));
+    }
+
+    private void showFloatingOverlay(View sourceView, LinearLayout floatingCard) {
+        Dialog dialog = new Dialog(this);
+        FrameLayout overlay = new FrameLayout(this);
+        overlay.setBackgroundColor(darkMode
+                ? Color.argb(138, 0, 0, 0) : Color.argb(112, 8, 21, 30));
+        overlay.setClickable(true);
+        overlay.setAlpha(0f);
+        FrameLayout.LayoutParams floatingParams = new FrameLayout.LayoutParams(
+                Math.min(dp(420), getResources().getDisplayMetrics().widthPixels - dp(36)),
+                ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
+        overlay.addView(floatingCard, floatingParams);
+        boolean[] closing = {false};
+        overlay.setOnClickListener(view -> {
+            if (closing[0]) return;
+            closing[0] = true;
+            floatingCard.animate().cancel();
+            overlay.animate().cancel();
+            floatingCard.animate().scaleX(0.96f).scaleY(0.96f)
+                    .setDuration(150).start();
+            overlay.animate().alpha(0f).setDuration(170)
+                    .withEndAction(dialog::dismiss).start();
+        });
+
+        dialog.setContentView(overlay);
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnDismissListener(ignored -> {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                root.setRenderEffect(null);
+            }
+        });
+        dialog.show();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            root.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(
+                    dp(12), dp(12), android.graphics.Shader.TileMode.CLAMP));
+        }
+        overlay.post(() -> {
+            int[] sourcePosition = new int[2];
+            int[] overlayPosition = new int[2];
+            sourceView.getLocationOnScreen(sourcePosition);
+            overlay.getLocationOnScreen(overlayPosition);
+            float startX = sourcePosition[0] + sourceView.getWidth() / 2f
+                    - overlayPosition[0] - overlay.getWidth() / 2f;
+            float startY = sourcePosition[1] + sourceView.getHeight() / 2f
+                    - overlayPosition[1] - overlay.getHeight() / 2f;
+            floatingCard.setTranslationX(startX);
+            floatingCard.setTranslationY(startY);
+            floatingCard.setScaleX(0.78f);
+            floatingCard.setScaleY(0.78f);
+            overlay.animate().alpha(1f).setDuration(180).start();
+            floatingCard.animate().translationX(0).translationY(0).scaleX(1f).scaleY(1f)
+                    .setDuration(260)
+                    .setInterpolator(new android.view.animation.DecelerateInterpolator(1.5f))
+                    .start();
+        });
     }
 
     private View makeHistoryCard(MarketData.DayRanking day) {
@@ -420,7 +908,8 @@ public final class MainActivity extends Activity {
         LinearLayout view = new LinearLayout(this);
         view.setOrientation(LinearLayout.VERTICAL);
         view.setPadding(dp(14), dp(13), dp(14), dp(13));
-        view.setBackground(tint(Color.WHITE, 15));
+        view.setBackground(tint(CARD, 15));
+        view.setTag("theme-card");
         return view;
     }
 
@@ -429,6 +918,9 @@ public final class MainActivity extends Activity {
         view.setText(text);
         view.setTextSize(sp);
         view.setTextColor(color);
+        if (color == NAVY) view.setTag("theme-primary");
+        else if (color == GREEN) view.setTag("theme-accent");
+        else if (color == MUTED) view.setTag("theme-muted");
         if (bold) view.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         return view;
     }
@@ -438,15 +930,6 @@ public final class MainActivity extends Activity {
         background.setColor(color);
         background.setCornerRadius(dp(radiusDp));
         return background;
-    }
-
-    private String joinSignals(List<String> signals) {
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < signals.size(); i++) {
-            if (i > 0) result.append(" · ");
-            result.append(signals.get(i));
-        }
-        return result.toString();
     }
 
     private void setStatus(String text) {

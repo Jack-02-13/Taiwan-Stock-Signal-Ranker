@@ -2,6 +2,7 @@
 /text1.py
 /requirements.txt
 /taiwan_stock_top3.db
+/site/data/market-history.json
 /__pycache__/
 *.py[cod]
 
@@ -25,3 +26,4 @@
 .DS_Store
 Thumbs.db
 /.wrangler/
+/worker/.wrangler/

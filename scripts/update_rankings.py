@@ -20,6 +20,7 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_FILE = ROOT / "site" / "data" / "rankings.json"
+HISTORY_FILE = ROOT / "site" / "data" / "market-history.json"
 MIN_SIGNAL_COUNT = 8
 MIN_PRICE = 10.0
 MIN_VOLUME_LOTS = 2_000.0
@@ -180,21 +181,37 @@ def fetch_tpex(day: date) -> list[Bar]:
     return parse_market_rows(payload, "TPEx", day)
 
 
+def history_start_day(now: datetime) -> date:
+    """Return today's date after 14:00 on weekdays; otherwise start yesterday."""
+    if now.weekday() < 5 and now.hour >= 14:
+        return now.date()
+    return now.date() - timedelta(days=1)
+
+
 def collect_history() -> tuple[list[Bar], list[date]]:
-    today = datetime.now(ZoneInfo("Asia/Taipei")).date()
+    now = datetime.now(ZoneInfo("Asia/Taipei"))
+    today = now.date()
+    # Before 14:00 Taipei time, only use completed sessions. At/after 14:00,
+    # include today's data when both exchanges have published a complete table.
+    start_day = history_start_day(now)
+    expecting_today = start_day == today
     bars: list[Bar] = []
     twse_dates: set[date] = set()
     tpex_dates: set[date] = set()
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         for offset in range(MAX_LOOKBACK_DAYS):
-            day = today - timedelta(days=offset)
+            day = start_day - timedelta(days=offset)
             if day.weekday() >= 5:
                 continue
             twse_future = pool.submit(fetch_twse, day)
             tpex_future = pool.submit(fetch_tpex, day)
             twse_bars = twse_future.result()
             tpex_bars = tpex_future.result()
+            if day == today and expecting_today and (len(twse_bars) < 300 or len(tpex_bars) < 300):
+                # Do not publish a partial current-day ranking. A later scheduled
+                # retry will pick up the complete tables; the existing file stays intact.
+                continue
             if twse_bars:
                 twse_dates.add(day)
                 bars.extend(twse_bars)
@@ -478,12 +495,52 @@ def write_rankings(rankings: list[dict[str, Any]], dates: list[date]) -> None:
     temporary_file.replace(OUTPUT_FILE)
 
 
+def write_market_history(bars: list[Bar], dates: list[date]) -> None:
+    """Write compact public source bars for the on-demand Worker calculation.
+
+    This file is generated in the Pages build workspace and is intentionally
+    excluded from Git so daily history does not grow the repository forever.
+    """
+    date_indexes = {day: index for index, day in enumerate(dates)}
+    by_symbol: dict[str, dict[str, Any]] = {}
+    for bar in bars:
+        index = date_indexes.get(bar.day)
+        if index is None:
+            continue
+        stock = by_symbol.setdefault(bar.symbol, {"symbol": bar.symbol, "name": bar.name, "bars": []})
+        stock["bars"].append([
+            index,
+            round(bar.open, 4),
+            round(bar.high, 4),
+            round(bar.low, 4),
+            round(bar.close, 4),
+            int(bar.volume),
+        ])
+
+    document = {
+        "schemaVersion": 1,
+        "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
+        "dates": [day.isoformat() for day in dates],
+        # Signals require an index of at least 70 within the stock's own series.
+        # Excluding shorter histories keeps the public Worker input compact.
+        "stocks": sorted(
+            (stock for stock in by_symbol.values() if len(stock["bars"]) >= 70),
+            key=lambda stock: stock["symbol"],
+        ),
+    }
+    HISTORY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    temporary_file = HISTORY_FILE.with_suffix(".tmp")
+    temporary_file.write_text(json.dumps(document, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+    temporary_file.replace(HISTORY_FILE)
+
+
 def main() -> int:
     bars, dates = collect_history()
     rankings = build_rankings(bars, dates)
     if not rankings:
         raise RuntimeError("No daily ranking dates were produced.")
     write_rankings(rankings, dates)
+    write_market_history(bars, dates)
     top_picks = rankings[0]["picks"]
     print(f"Updated {len(dates)} shared trading sessions through {dates[-1].isoformat()}.")
     print(f"Qualified stocks on latest session: {rankings[0]['qualifiedCount']}.")

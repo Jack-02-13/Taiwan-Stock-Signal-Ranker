@@ -1,3 +1,5 @@
+import { calculateLatestRanking } from "./ranking.js";
+
 const SITE_ORIGINS = new Set([
   "https://jack-02-13.github.io",
   "http://localhost:8000",
@@ -8,23 +10,30 @@ const SITE_ORIGINS = new Set([
 
 const MAX_HISTORY_DAYS = 180;
 const RECENT_DAY_REFRESH_MINUTES = 30;
+const PUBLISHED_RANKINGS_URL = "https://jack-02-13.github.io/Taiwan-Stock-Signal-Ranker/data/rankings.json";
+const MARKET_HISTORY_URL = "https://jack-02-13.github.io/Taiwan-Stock-Signal-Ranker/data/market-history.json";
 const recentRequests = new Map();
 
 export default {
   async scheduled(_event, env) {
     const date = getTaipeiDate();
     if (!isTaipeiWeekday(date) || !isAfterTaipeiTime(14, 0) || !env.MARKET_DATA) return;
+    let changed = false;
     for (const market of ["TWSE", "TPEX"]) {
-      if (await readStored(env.MARKET_DATA, market, date)) continue;
+      const cached = await readStored(env.MARKET_DATA, market, date);
+      const ageMinutes = cached ? (Date.now() - Date.parse(cached.fetchedAt)) / 60000 : Number.POSITIVE_INFINITY;
+      if (cached && ageMinutes < RECENT_DAY_REFRESH_MINUTES) continue;
       const failKey = `retry:${market}:${date}`;
       const failedUntil = await env.MARKET_DATA.get(failKey);
       if (failedUntil && Date.now() < Number(failedUntil)) continue;
       try {
         await fetchAndStore(env.MARKET_DATA, market, date, true);
+        changed = true;
       } catch (_error) {
         await env.MARKET_DATA.put(failKey, String(Date.now() + 5 * 60 * 1000), { expirationTtl: 300 });
       }
     }
+    if (changed) await env.MARKET_DATA.delete(`rankings:${date}`);
   },
 
   async fetch(request, env) {
@@ -37,11 +46,19 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders });
     }
 
-    if (request.method !== "GET" || url.pathname !== "/api/market") {
-      return json({ error: "not_found" }, 404, corsHeaders);
-    }
+    if (request.method !== "GET") return json({ error: "method_not_allowed" }, 405, corsHeaders);
+    if (!["/api/market", "/api/rankings"].includes(url.pathname)) return json({ error: "not_found" }, 404, corsHeaders);
     if (!SITE_ORIGINS.has(origin)) return json({ error: "origin_not_allowed" }, 403);
     if (!env.MARKET_DATA) return json({ error: "storage_not_configured" }, 503, corsHeaders);
+
+    if (url.pathname === "/api/rankings") {
+      try {
+        const result = await getRankings(env.MARKET_DATA);
+        return json(result, 200, corsHeaders);
+      } catch (error) {
+        return json({ error: "rankings_unavailable", message: safeMessage(error) }, 503, corsHeaders);
+      }
+    }
 
     const market = url.searchParams.get("market");
     const date = url.searchParams.get("date");
@@ -69,7 +86,7 @@ export default {
     const cacheAgeMinutes = cached
       ? (Date.now() - Date.parse(cached.fetchedAt)) / 60000
       : Number.POSITIVE_INFINITY;
-    const shouldFetch = !cached || (forceRefresh && isRecent && !isToday && cacheAgeMinutes >= RECENT_DAY_REFRESH_MINUTES);
+    const shouldFetch = !cached || (forceRefresh && isRecent && cacheAgeMinutes >= RECENT_DAY_REFRESH_MINUTES);
 
     if (!shouldFetch) return json(cached, 200, corsHeaders);
 
@@ -123,6 +140,79 @@ function json(value, status, headers = {}) {
     status,
     headers: { "Content-Type": "application/json; charset=utf-8", ...headers },
   });
+}
+
+async function getRankings(namespace) {
+  const today = getTaipeiDate();
+  const afterClose = isTaipeiWeekday(today) && isAfterTaipeiTime(14, 0);
+  const published = await fetchPublishedJson(PUBLISHED_RANKINGS_URL);
+  if (!Array.isArray(published.rankings)) throw new Error("公開排行資料格式錯誤。");
+
+  if (!afterClose) return { ...published, marketDataStatus: "published" };
+  if (published.latestDate === today) return { ...published, marketDataStatus: "current" };
+
+  const cacheKey = `rankings:${today}`;
+  const cachedRanking = await namespace.get(cacheKey, { type: "json" });
+  if (cachedRanking?.data?.latestDate === today) return cachedRanking.data;
+
+  const history = await fetchPublishedJson(MARKET_HISTORY_URL);
+  if (!Array.isArray(history.dates) || history.dates.length < 76 || !Array.isArray(history.stocks)) {
+    throw new Error("歷史行情尚未部署完成，暫時無法計算今日排行。");
+  }
+
+  let currentBars = [];
+  if (!history.dates.includes(today)) {
+    currentBars = (await Promise.all(["TWSE", "TPEX"].map((market) => getTodayMarketBars(namespace, market, today)))).flat();
+  }
+
+  const latest = calculateLatestRanking(history, currentBars, today);
+  const olderRankings = published.rankings
+    .filter((day) => day?.date !== today)
+    .sort((left, right) => String(right.date).localeCompare(String(left.date)))
+    .slice(0, 6);
+  const result = {
+    schemaVersion: published.schemaVersion || 1,
+    generatedAt: new Date().toISOString(),
+    latestDate: today,
+    historySessionCount: 77,
+    sources: published.sources || [
+      "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX",
+      "https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes",
+    ],
+    method: published.method,
+    rankings: [latest, ...olderRankings],
+    marketDataStatus: "current",
+  };
+  await namespace.put(cacheKey, JSON.stringify({ data: result, calculatedAt: new Date().toISOString() }), {
+    expirationTtl: 60 * 60 * 48,
+  });
+  return result;
+}
+
+async function getTodayMarketBars(namespace, market, date) {
+  const cached = await readStored(namespace, market, date);
+  const ageMinutes = cached ? (Date.now() - Date.parse(cached.fetchedAt)) / 60000 : Number.POSITIVE_INFINITY;
+  if (cached && ageMinutes < RECENT_DAY_REFRESH_MINUTES) return cached.bars;
+
+  const failKey = `retry:${market}:${date}`;
+  const failedUntil = await namespace.get(failKey);
+  if (cached && failedUntil && Date.now() < Number(failedUntil)) return cached.bars;
+  try {
+    return (await fetchAndStore(namespace, market, date, true)).bars;
+  } catch (error) {
+    await namespace.put(failKey, String(Date.now() + 5 * 60 * 1000), { expirationTtl: 300 });
+    if (cached) return cached.bars;
+    throw error;
+  }
+}
+
+async function fetchPublishedJson(address) {
+  const response = await fetch(address, {
+    headers: { Accept: "application/json", "Cache-Control": "no-cache" },
+    cf: { cacheTtl: 0, cacheEverything: false },
+  });
+  if (!response.ok) throw new Error(`公開資料 HTTP ${response.status}`);
+  return response.json();
 }
 
 function parseIsoDate(value) {

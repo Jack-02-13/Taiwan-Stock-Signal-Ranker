@@ -3,7 +3,7 @@
 
     <application
         android:allowBackup="false"
-        android:label="台股前三名"
+        android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
