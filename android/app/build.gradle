@@ -32,7 +32,7 @@ android {
         minSdk 26
         targetSdk 35
         versionCode 3
-        versionName '1.0.1'
+        versionName '1.1.0'
         resValue 'string', 'app_name', '台股前三名'
     }
 

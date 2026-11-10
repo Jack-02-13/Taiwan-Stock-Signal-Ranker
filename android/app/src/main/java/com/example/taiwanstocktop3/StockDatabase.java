@@ -12,7 +12,7 @@ import java.util.List;
 
 final class StockDatabase extends SQLiteOpenHelper {
     private static final String DB_NAME = "tw_stock_history.db";
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 3;
 
     StockDatabase(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -28,9 +28,9 @@ final class StockDatabase extends SQLiteOpenHelper {
     }
 
     @Override public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 2) {
-            // Older builds marked empty TPEx responses as synchronized. Clear those
-            // markers so the corrected dailyQuotes endpoint backfills recent history.
+        if (oldVersion < 3) {
+            // Keep the app's history and rankings limited to TWSE-listed stocks.
+            db.delete("bars", "market=?", new String[]{"TPEx"});
             db.delete("sync_state", "market=?", new String[]{"TPEx"});
         }
     }

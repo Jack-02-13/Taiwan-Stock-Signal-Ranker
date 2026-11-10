@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -21,6 +23,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,6 +66,7 @@ public final class MainActivity extends Activity {
     private TextView darkModeButton;
     private TextView lightModeButton;
     private Button refreshButton;
+    private ProgressBar pullRefreshIndicator;
     private boolean syncing = false;
     private boolean checkingForUpdate = false;
     private boolean darkMode;
@@ -178,14 +182,29 @@ public final class MainActivity extends Activity {
         header.addView(statusRow, statusRowLp);
         root.addView(header);
 
-        ScrollView scroll = new ScrollView(this);
-        scroll.setFillViewport(true);
+        FrameLayout scrollFrame = new FrameLayout(this);
+        PullRefreshScrollView scroll = new PullRefreshScrollView(this);
         content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(dp(14), dp(14), dp(14), dp(22));
         content.setTag("theme-page");
         scroll.addView(content);
-        root.addView(scroll, new LinearLayout.LayoutParams(
+        scrollFrame.addView(scroll, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        pullRefreshIndicator = new ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
+        pullRefreshIndicator.setIndeterminate(true);
+        pullRefreshIndicator.setIndeterminateTintList(ColorStateList.valueOf(GREEN));
+        pullRefreshIndicator.setVisibility(View.GONE);
+        pullRefreshIndicator.setClickable(false);
+        pullRefreshIndicator.setFocusable(false);
+        pullRefreshIndicator.setElevation(dp(6));
+        FrameLayout.LayoutParams pullIndicatorParams = new FrameLayout.LayoutParams(
+                dp(30), dp(30), Gravity.TOP | Gravity.CENTER_HORIZONTAL);
+        pullIndicatorParams.topMargin = dp(10);
+        scrollFrame.addView(pullRefreshIndicator, pullIndicatorParams);
+
+        root.addView(scrollFrame, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
         setContentView(root);
     }
@@ -213,6 +232,7 @@ public final class MainActivity extends Activity {
         root.setBackgroundColor(PAGE);
         header.setBackgroundColor(HEADER);
         refreshButton.setBackground(tint(GREEN, 18));
+        pullRefreshIndicator.setIndeterminateTintList(ColorStateList.valueOf(GREEN));
         updateThemeOption(darkModeButton, darkMode);
         updateThemeOption(lightModeButton, !darkMode);
         themeSelectionIndicator.setBackground(glassSelectionBackground(GREEN));
@@ -427,10 +447,7 @@ public final class MainActivity extends Activity {
                 final LocalDate fetchDate = date;
                 boolean forceRecent = !date.isBefore(refreshRecentAfter);
                 if (forceRecent || !database.wasSynced("TWSE", date)) {
-                    tasks.add(() -> download("TWSE", fetchDate));
-                }
-                if (forceRecent || !database.wasSynced("TPEx", date)) {
-                    tasks.add(() -> download("TPEx", fetchDate));
+                    tasks.add(() -> download(fetchDate));
                 }
             }
             CompletionService<FetchOutcome> completed = new ExecutorCompletionService<>(networkPool);
@@ -442,7 +459,7 @@ public final class MainActivity extends Activity {
                     FetchOutcome outcome = future.get();
                     if (outcome.error == null) {
                         database.saveBars(outcome.bars);
-                        database.markSynced(outcome.market, outcome.date);
+                        database.markSynced("TWSE", outcome.date);
                     } else {
                         failures++;
                     }
@@ -469,18 +486,18 @@ public final class MainActivity extends Activity {
                 }
                 refreshButton.setEnabled(true);
                 refreshButton.setText("更新資料");
+                pullRefreshIndicator.setVisibility(View.GONE);
                 syncing = false;
             });
         });
     }
 
-    private FetchOutcome download(String market, LocalDate date) {
+    private FetchOutcome download(LocalDate date) {
         try {
-            List<MarketData.Bar> bars = "TWSE".equals(market)
-                    ? ExchangeClient.fetchTwse(date) : ExchangeClient.fetchTpex(date);
-            return new FetchOutcome(market, date, bars, null);
+            List<MarketData.Bar> bars = ExchangeClient.fetchTwse(date);
+            return new FetchOutcome(date, bars, null);
         } catch (Exception e) {
-            return new FetchOutcome(market, date, new ArrayList<>(), e);
+            return new FetchOutcome(date, new ArrayList<>(), e);
         }
     }
 
@@ -940,6 +957,64 @@ public final class MainActivity extends Activity {
         return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
+    private final class PullRefreshScrollView extends ScrollView {
+        private float startY;
+        private boolean refreshGestureCaptured;
+
+        PullRefreshScrollView(Activity context) {
+            super(context);
+            setFillViewport(true);
+            setOverScrollMode(View.OVER_SCROLL_NEVER);
+        }
+
+        @Override public boolean onInterceptTouchEvent(MotionEvent event) {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    startY = event.getY();
+                    refreshGestureCaptured = false;
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    if (!syncing && !refreshGestureCaptured && getScrollY() == 0
+                            && event.getY() - startY >= dp(48)) {
+                        refreshGestureCaptured = true;
+                        pullRefreshIndicator.setVisibility(View.VISIBLE);
+                        syncMarkets();
+                        return true;
+                    }
+                    if (refreshGestureCaptured) return true;
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    refreshGestureCaptured = false;
+                    break;
+                default:
+                    break;
+            }
+            return super.onInterceptTouchEvent(event);
+        }
+
+        @Override public boolean onTouchEvent(MotionEvent event) {
+            if (event.getActionMasked() == MotionEvent.ACTION_MOVE
+                    && !syncing && !refreshGestureCaptured && getScrollY() == 0
+                    && event.getY() - startY >= dp(48)) {
+                // ScrollView can intercept the drag before it reaches the pull threshold.
+                // Check again here so the refresh still triggers after interception.
+                refreshGestureCaptured = true;
+                pullRefreshIndicator.setVisibility(View.VISIBLE);
+                syncMarkets();
+                return true;
+            }
+            if (refreshGestureCaptured) {
+                if (event.getActionMasked() == MotionEvent.ACTION_UP
+                        || event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
+                    refreshGestureCaptured = false;
+                }
+                return true;
+            }
+            return super.onTouchEvent(event);
+        }
+    }
+
     @Override protected void onDestroy() {
         syncExecutor.shutdownNow();
         networkPool.shutdownNow();
@@ -949,13 +1024,11 @@ public final class MainActivity extends Activity {
     }
 
     private static final class FetchOutcome {
-        final String market;
         final LocalDate date;
         final List<MarketData.Bar> bars;
         final Exception error;
 
-        FetchOutcome(String market, LocalDate date, List<MarketData.Bar> bars, Exception error) {
-            this.market = market;
+        FetchOutcome(LocalDate date, List<MarketData.Bar> bars, Exception error) {
             this.date = date;
             this.bars = bars;
             this.error = error;

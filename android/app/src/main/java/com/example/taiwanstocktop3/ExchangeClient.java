@@ -18,7 +18,6 @@ import java.util.Locale;
 
 final class ExchangeClient {
     private static final DateTimeFormatter TWSE_DATE = DateTimeFormatter.BASIC_ISO_DATE;
-    private static final DateTimeFormatter TPEX_DATE = DateTimeFormatter.ofPattern("yyyy/MM/dd", Locale.US);
 
     private ExchangeClient() {}
 
@@ -26,12 +25,6 @@ final class ExchangeClient {
         String url = "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date="
                 + TWSE_DATE.format(date) + "&type=ALLBUT0999&response=json";
         return fetch(url, "TWSE", date, "https://www.twse.com.tw/");
-    }
-
-    static List<MarketData.Bar> fetchTpex(LocalDate date) throws IOException {
-        String url = "https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes?response=json&date="
-                + TPEX_DATE.format(date);
-        return fetch(url, "TPEx", date, "https://www.tpex.org.tw/");
     }
 
     private static List<MarketData.Bar> fetch(String address, String market,

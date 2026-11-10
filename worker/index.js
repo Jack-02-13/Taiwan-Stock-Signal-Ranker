@@ -10,6 +10,7 @@ const SITE_ORIGINS = new Set([
 
 const MAX_HISTORY_DAYS = 180;
 const RECENT_DAY_REFRESH_MINUTES = 30;
+const RANKING_CACHE_VERSION = "twse-only-v1";
 const PUBLISHED_RANKINGS_URL = "https://jack-02-13.github.io/Taiwan-Stock-Signal-Ranker/data/rankings.json";
 const MARKET_HISTORY_URL = "https://jack-02-13.github.io/Taiwan-Stock-Signal-Ranker/data/market-history.json";
 const recentRequests = new Map();
@@ -19,7 +20,7 @@ export default {
     const date = getTaipeiDate();
     if (!isTaipeiWeekday(date) || !isAfterTaipeiTime(14, 0) || !env.MARKET_DATA) return;
     let changed = false;
-    for (const market of ["TWSE", "TPEX"]) {
+    for (const market of ["TWSE"]) {
       const cached = await readStored(env.MARKET_DATA, market, date);
       const ageMinutes = cached ? (Date.now() - Date.parse(cached.fetchedAt)) / 60000 : Number.POSITIVE_INFINITY;
       if (cached && ageMinutes < RECENT_DAY_REFRESH_MINUTES) continue;
@@ -33,7 +34,7 @@ export default {
         await env.MARKET_DATA.put(failKey, String(Date.now() + 5 * 60 * 1000), { expirationTtl: 300 });
       }
     }
-    if (changed) await env.MARKET_DATA.delete(`rankings:${date}`);
+    if (changed) await env.MARKET_DATA.delete(`rankings:${RANKING_CACHE_VERSION}:${date}`);
   },
 
   async fetch(request, env) {
@@ -64,7 +65,7 @@ export default {
     const date = url.searchParams.get("date");
     const forceRefresh = url.searchParams.get("refresh") === "1";
     const parsedDate = parseIsoDate(date);
-    if (!new Set(["TWSE", "TPEX"]).has(market) || !parsedDate) {
+    if (market !== "TWSE" || !parsedDate) {
       return json({ error: "invalid_market_or_date" }, 400, corsHeaders);
     }
 
@@ -151,7 +152,7 @@ async function getRankings(namespace) {
   if (!afterClose) return { ...published, marketDataStatus: "published" };
   if (published.latestDate === today) return { ...published, marketDataStatus: "current" };
 
-  const cacheKey = `rankings:${today}`;
+  const cacheKey = `rankings:${RANKING_CACHE_VERSION}:${today}`;
   const cachedRanking = await namespace.get(cacheKey, { type: "json" });
   if (cachedRanking?.data?.latestDate === today) return cachedRanking.data;
 
@@ -162,7 +163,7 @@ async function getRankings(namespace) {
 
   let currentBars = [];
   if (!history.dates.includes(today)) {
-    currentBars = (await Promise.all(["TWSE", "TPEX"].map((market) => getTodayMarketBars(namespace, market, today)))).flat();
+    currentBars = await getTodayMarketBars(namespace, "TWSE", today);
   }
 
   const latest = calculateLatestRanking(history, currentBars, today);
@@ -175,10 +176,7 @@ async function getRankings(namespace) {
     generatedAt: new Date().toISOString(),
     latestDate: today,
     historySessionCount: 77,
-    sources: published.sources || [
-      "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX",
-      "https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes",
-    ],
+    sources: ["https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX"],
     method: published.method,
     rankings: [latest, ...olderRankings],
     marketDataStatus: "current",
@@ -278,24 +276,16 @@ async function fetchAndStore(namespace, market, date, isToday) {
 }
 
 async function fetchMarketPayload(market, date) {
+  if (market !== "TWSE") throw new Error("only_twse_supported");
   const [year, month, day] = date.split("-");
-  let address;
-  let referer;
-  if (market === "TWSE") {
-    const query = new URLSearchParams({ date: `${year}${month}${day}`, type: "ALLBUT0999", response: "json" });
-    address = `https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?${query}`;
-    referer = "https://www.twse.com.tw/";
-  } else {
-    const query = new URLSearchParams({ response: "json", date: `${year}/${month}/${day}` });
-    address = `https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes?${query}`;
-    referer = "https://www.tpex.org.tw/";
-  }
+  const query = new URLSearchParams({ date: `${year}${month}${day}`, type: "ALLBUT0999", response: "json" });
+  const address = `https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?${query}`;
 
   const response = await fetch(address, {
     headers: {
       Accept: "application/json,text/plain,*/*",
       "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.7",
-      Referer: referer,
+      Referer: "https://www.twse.com.tw/",
       "User-Agent": "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/126 Mobile Safari/537.36",
     },
     cf: { cacheTtl: 0, cacheEverything: false },

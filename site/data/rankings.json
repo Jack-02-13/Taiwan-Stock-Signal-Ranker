@@ -1,11 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T11:34:26Z",
+  "generatedAt": "2026-11-10T16:08:04Z",
   "latestDate": "2026-11-10",
   "historySessionCount": 77,
   "sources": [
-    "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX",
-    "https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes"
+    "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX"
   ],
   "method": {
     "signals": 15,
@@ -21,62 +20,10 @@
   "rankings": [
     {
       "date": "2026-11-10",
-      "qualifiedCount": 65,
+      "qualifiedCount": 39,
       "picks": [
         {
           "rank": 1,
-          "symbol": "5230",
-          "name": "雷笛克光學",
-          "close": 30.85,
-          "volumeLots": 8029.75,
-          "volumeShares": 8029747,
-          "score": 150,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 2,
-          "symbol": "3147",
-          "name": "大綜",
-          "close": 351.0,
-          "volumeLots": 2597.49,
-          "volumeShares": 2597493,
-          "score": 150,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 3,
           "symbol": "6112",
           "name": "邁達特",
           "close": 57.0,
@@ -99,12 +46,61 @@
             "ADX趨勢偏多",
             "20日報酬為正"
           ]
+        },
+        {
+          "rank": 2,
+          "symbol": "3703",
+          "name": "欣陸",
+          "close": 23.95,
+          "volumeLots": 7412.05,
+          "volumeShares": 7412050,
+          "score": 140,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "MACD動能增強",
+            "KD多方且未過熱",
+            "突破20日高點",
+            "突破60日高點",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 3,
+          "symbol": "2610",
+          "name": "華航",
+          "close": 22.8,
+          "volumeLots": 100280.63,
+          "volumeShares": 100280630,
+          "score": 130,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "20日線上彎",
+            "MACD多方",
+            "MACD動能增強",
+            "KD多方且未過熱",
+            "突破20日高點",
+            "突破60日高點",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
         }
       ]
     },
     {
       "date": "2026-11-09",
-      "qualifiedCount": 48,
+      "qualifiedCount": 31,
       "picks": [
         {
           "rank": 1,
@@ -159,12 +155,12 @@
         },
         {
           "rank": 3,
-          "symbol": "4741",
-          "name": "泓瀚",
-          "close": 63.0,
-          "volumeLots": 3917.76,
-          "volumeShares": 3917759,
-          "score": 140,
+          "symbol": "2468",
+          "name": "華經",
+          "close": 63.3,
+          "volumeLots": 45739.45,
+          "volumeShares": 45739449,
+          "score": 130,
           "signals": [
             "收盤高於20日線",
             "20日線高於60日線",
@@ -172,9 +168,8 @@
             "20日線上彎",
             "MACD多方",
             "MACD動能增強",
+            "RSI 50至70",
             "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
             "成交量放大",
             "OBV偏多",
             "MFI偏多",
@@ -186,7 +181,7 @@
     },
     {
       "date": "2026-11-06",
-      "qualifiedCount": 50,
+      "qualifiedCount": 33,
       "picks": [
         {
           "rank": 1,
@@ -238,16 +233,15 @@
         },
         {
           "rank": 3,
-          "symbol": "3287",
-          "name": "廣寰科",
-          "close": 73.3,
-          "volumeLots": 3725.16,
-          "volumeShares": 3725164,
-          "score": 130,
+          "symbol": "2610",
+          "name": "華航",
+          "close": 21.2,
+          "volumeLots": 50990.56,
+          "volumeShares": 50990557,
+          "score": 120,
           "signals": [
             "收盤高於20日線",
             "20日線高於60日線",
-            "60日線上彎",
             "20日線上彎",
             "MACD多方",
             "MACD動能增強",
@@ -264,7 +258,7 @@
     },
     {
       "date": "2026-11-05",
-      "qualifiedCount": 60,
+      "qualifiedCount": 39,
       "picks": [
         {
           "rank": 1,
@@ -347,60 +341,10 @@
     },
     {
       "date": "2026-11-04",
-      "qualifiedCount": 67,
+      "qualifiedCount": 44,
       "picks": [
         {
           "rank": 1,
-          "symbol": "4533",
-          "name": "協易機",
-          "close": 31.2,
-          "volumeLots": 15695.85,
-          "volumeShares": 15695849,
-          "score": 140,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 2,
-          "symbol": "5202",
-          "name": "力新",
-          "close": 17.9,
-          "volumeLots": 4991.0,
-          "volumeShares": 4990999,
-          "score": 140,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 3,
           "symbol": "1416",
           "name": "廣豐",
           "close": 14.15,
@@ -423,21 +367,15 @@
             "ADX趨勢偏多",
             "20日報酬為正"
           ]
-        }
-      ]
-    },
-    {
-      "date": "2026-11-03",
-      "qualifiedCount": 75,
-      "picks": [
+        },
         {
-          "rank": 1,
-          "symbol": "5202",
-          "name": "力新",
-          "close": 16.3,
-          "volumeLots": 8827.45,
-          "volumeShares": 8827447,
-          "score": 150,
+          "rank": 2,
+          "symbol": "4720",
+          "name": "德淵",
+          "close": 33.3,
+          "volumeLots": 41936.6,
+          "volumeShares": 41936600,
+          "score": 130,
           "signals": [
             "收盤高於20日線",
             "20日線高於60日線",
@@ -447,8 +385,6 @@
             "MACD動能增強",
             "RSI 50至70",
             "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
             "成交量放大",
             "OBV偏多",
             "MFI偏多",
@@ -457,7 +393,37 @@
           ]
         },
         {
-          "rank": 2,
+          "rank": 3,
+          "symbol": "1528",
+          "name": "恩德",
+          "close": 27.65,
+          "volumeLots": 32768.62,
+          "volumeShares": 32768625,
+          "score": 130,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "MACD動能增強",
+            "RSI 50至70",
+            "KD多方且未過熱",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-11-03",
+      "qualifiedCount": 52,
+      "picks": [
+        {
+          "rank": 1,
           "symbol": "2465",
           "name": "麗臺",
           "close": 114.0,
@@ -481,23 +447,45 @@
           ]
         },
         {
-          "rank": 3,
-          "symbol": "3379",
-          "name": "彬台",
-          "close": 32.5,
-          "volumeLots": 4292.07,
-          "volumeShares": 4292067,
-          "score": 130,
+          "rank": 2,
+          "symbol": "1802",
+          "name": "台玻",
+          "close": 67.7,
+          "volumeLots": 301314.44,
+          "volumeShares": 301314439,
+          "score": 120,
           "signals": [
             "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD動能增強",
+            "RSI 50至70",
+            "KD多方且未過熱",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 3,
+          "symbol": "2618",
+          "name": "長榮航",
+          "close": 43.7,
+          "volumeLots": 33992.69,
+          "volumeShares": 33992695,
+          "score": 120,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
             "60日線上彎",
             "20日線上彎",
             "MACD多方",
             "MACD動能增強",
             "RSI 50至70",
             "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
             "成交量放大",
             "OBV偏多",
             "MFI偏多",
@@ -508,7 +496,7 @@
     },
     {
       "date": "2026-11-02",
-      "qualifiedCount": 90,
+      "qualifiedCount": 68,
       "picks": [
         {
           "rank": 1,
@@ -537,12 +525,12 @@
         },
         {
           "rank": 2,
-          "symbol": "6234",
-          "name": "高僑",
-          "close": 53.2,
-          "volumeLots": 11663.82,
-          "volumeShares": 11663815,
-          "score": 140,
+          "symbol": "2882",
+          "name": "國泰金",
+          "close": 116.0,
+          "volumeLots": 28339.35,
+          "volumeShares": 28339355,
+          "score": 130,
           "signals": [
             "收盤高於20日線",
             "20日線高於60日線",
@@ -550,9 +538,8 @@
             "20日線上彎",
             "MACD多方",
             "MACD動能增強",
+            "RSI 50至70",
             "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
             "成交量放大",
             "OBV偏多",
             "MFI偏多",
@@ -562,12 +549,12 @@
         },
         {
           "rank": 3,
-          "symbol": "6140",
-          "name": "訊達",
-          "close": 24.95,
-          "volumeLots": 2801.96,
-          "volumeShares": 2801956,
-          "score": 140,
+          "symbol": "2801",
+          "name": "彰銀",
+          "close": 30.85,
+          "volumeLots": 26559.81,
+          "volumeShares": 26559808,
+          "score": 130,
           "signals": [
             "收盤高於20日線",
             "20日線高於60日線",
@@ -575,7 +562,6 @@
             "20日線上彎",
             "MACD多方",
             "MACD動能增強",
-            "KD多方且未過熱",
             "突破20日高點",
             "突破60日高點",
             "成交量放大",

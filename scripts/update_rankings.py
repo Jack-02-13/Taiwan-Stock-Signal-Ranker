@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch public TWSE/TPEx daily bars and write the public Pages ranking file."""
+"""Fetch public TWSE daily bars and write the public Pages ranking file."""
 
 from __future__ import annotations
 
@@ -173,14 +173,6 @@ def fetch_twse(day: date) -> list[Bar]:
     return parse_market_rows(payload, "TWSE", day)
 
 
-def fetch_tpex(day: date) -> list[Bar]:
-    # dailyQuotes is the TPEx historical all-market quote table. The older
-    # afterTrading/otc action currently returns an empty table for these dates.
-    query = urlencode({"response": "json", "date": day.strftime("%Y/%m/%d")})
-    payload = request_json(f"https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes?{query}")
-    return parse_market_rows(payload, "TPEx", day)
-
-
 def history_start_day(now: datetime) -> date:
     """Return today's date after 14:00 on weekdays; otherwise start yesterday."""
     if now.weekday() < 5 and now.hour >= 14:
@@ -192,40 +184,37 @@ def collect_history() -> tuple[list[Bar], list[date]]:
     now = datetime.now(ZoneInfo("Asia/Taipei"))
     today = now.date()
     # Before 14:00 Taipei time, only use completed sessions. At/after 14:00,
-    # include today's data when both exchanges have published a complete table.
+    # include today's data only when TWSE has published a complete table.
     start_day = history_start_day(now)
     expecting_today = start_day == today
     bars: list[Bar] = []
-    twse_dates: set[date] = set()
-    tpex_dates: set[date] = set()
+    twse_dates: list[date] = []
+    candidate_days = [
+        start_day - timedelta(days=offset)
+        for offset in range(MAX_LOOKBACK_DAYS)
+        if (start_day - timedelta(days=offset)).weekday() < 5
+    ]
 
-    with ThreadPoolExecutor(max_workers=2) as pool:
-        for offset in range(MAX_LOOKBACK_DAYS):
-            day = start_day - timedelta(days=offset)
-            if day.weekday() >= 5:
-                continue
-            twse_future = pool.submit(fetch_twse, day)
-            tpex_future = pool.submit(fetch_tpex, day)
-            twse_bars = twse_future.result()
-            tpex_bars = tpex_future.result()
-            if day == today and expecting_today and (len(twse_bars) < 300 or len(tpex_bars) < 300):
-                # Do not publish a partial current-day ranking. A later scheduled
-                # retry will pick up the complete tables; the existing file stays intact.
-                continue
-            if twse_bars:
-                twse_dates.add(day)
-                bars.extend(twse_bars)
-            if tpex_bars:
-                tpex_dates.add(day)
-                bars.extend(tpex_bars)
-            common_dates = sorted(twse_dates & tpex_dates)
-            if len(common_dates) >= HISTORY_SESSIONS:
-                selected_dates = common_dates[-HISTORY_SESSIONS:]
-                selected_set = set(selected_dates)
-                return [bar for bar in bars if bar.day in selected_set], selected_dates
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        for chunk_start in range(0, len(candidate_days), 12):
+            chunk = candidate_days[chunk_start : chunk_start + 12]
+            futures = [(day, pool.submit(fetch_twse, day)) for day in chunk]
+            for day, future in futures:
+                twse_bars = future.result()
+                if day == today and expecting_today and len(twse_bars) < 300:
+                    # Do not publish a partial current-day ranking. A later scheduled
+                    # retry will pick up the complete table; the existing file stays intact.
+                    continue
+                if twse_bars:
+                    twse_dates.append(day)
+                    bars.extend(twse_bars)
+                if len(twse_dates) >= HISTORY_SESSIONS:
+                    selected_dates = sorted(twse_dates)[-HISTORY_SESSIONS:]
+                    selected_set = set(selected_dates)
+                    return [bar for bar in bars if bar.day in selected_set], selected_dates
 
     raise RuntimeError(
-        "Could not collect 77 dates with both TWSE and TPEx data. "
+        "Could not collect 77 TWSE trading sessions. "
         "No ranking file was changed; rerun the workflow later."
     )
 
@@ -478,7 +467,6 @@ def write_rankings(rankings: list[dict[str, Any]], dates: list[date]) -> None:
         "historySessionCount": len(dates),
         "sources": [
             "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX",
-            "https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes",
         ],
         "method": {
             "signals": 15,
@@ -542,7 +530,7 @@ def main() -> int:
     write_rankings(rankings, dates)
     write_market_history(bars, dates)
     top_picks = rankings[0]["picks"]
-    print(f"Updated {len(dates)} shared trading sessions through {dates[-1].isoformat()}.")
+    print(f"Updated {len(dates)} TWSE trading sessions through {dates[-1].isoformat()}.")
     print(f"Qualified stocks on latest session: {rankings[0]['qualifiedCount']}.")
     for pick in top_picks:
         print(f"{pick['rank']}. {pick['symbol']} {pick['name']} — {pick['score']} points")
