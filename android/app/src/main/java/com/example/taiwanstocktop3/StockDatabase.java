@@ -12,7 +12,7 @@ import java.util.List;
 
 final class StockDatabase extends SQLiteOpenHelper {
     private static final String DB_NAME = "tw_stock_history.db";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
 
     StockDatabase(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -28,7 +28,11 @@ final class StockDatabase extends SQLiteOpenHelper {
     }
 
     @Override public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Keep the local price cache when the schema is extended in a future version.
+        if (oldVersion < 2) {
+            // Older builds marked empty TPEx responses as synchronized. Clear those
+            // markers so the corrected dailyQuotes endpoint backfills recent history.
+            db.delete("sync_state", "market=?", new String[]{"TPEx"});
+        }
     }
 
     synchronized void saveBars(List<MarketData.Bar> bars) {

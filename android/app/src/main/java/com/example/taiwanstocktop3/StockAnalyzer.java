@@ -51,7 +51,9 @@ final class StockAnalyzer {
             }
             candidates.sort((a, b) -> {
                 int scoreOrder = Integer.compare(b.score, a.score);
-                return scoreOrder != 0 ? scoreOrder : Double.compare(b.volume, a.volume);
+                if (scoreOrder != 0) return scoreOrder;
+                int volumeOrder = Long.compare((long) b.volume, (long) a.volume);
+                return volumeOrder != 0 ? volumeOrder : a.symbol.compareTo(b.symbol);
             });
             ArrayList<MarketData.Pick> picks = new ArrayList<>();
             for (int i = 0; i < Math.min(3, candidates.size()); i++) {

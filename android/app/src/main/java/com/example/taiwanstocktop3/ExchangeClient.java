@@ -29,8 +29,8 @@ final class ExchangeClient {
     }
 
     static List<MarketData.Bar> fetchTpex(LocalDate date) throws IOException {
-        String url = "https://www.tpex.org.tw/www/zh-tw/afterTrading/otc?date="
-                + TPEX_DATE.format(date) + "&id=&response=json";
+        String url = "https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes?response=json&date="
+                + TPEX_DATE.format(date);
         return fetch(url, "TPEx", date, "https://www.tpex.org.tw/");
     }
 
