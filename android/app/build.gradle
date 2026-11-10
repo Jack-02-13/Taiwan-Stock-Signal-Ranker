@@ -2,9 +2,30 @@ plugins {
     id 'com.android.application'
 }
 
+def releaseKeystorePath = System.getenv('TSR_RELEASE_KEYSTORE_FILE')
+def releaseStorePassword = System.getenv('TSR_RELEASE_KEYSTORE_PASSWORD')
+def releaseKeyAlias = System.getenv('TSR_RELEASE_KEY_ALIAS')
+def releaseKeyPassword = System.getenv('TSR_RELEASE_KEY_PASSWORD')
+def releaseSigningConfigured = [releaseKeystorePath, releaseStorePassword, releaseKeyAlias, releaseKeyPassword]
+        .every { it != null && !it.trim().isEmpty() }
+def appProject = project
+
+gradle.taskGraph.whenReady { taskGraph ->
+    def buildsReleaseArtifact = taskGraph.allTasks.any { task ->
+        task.project == appProject && task.name in ['packageRelease', 'bundleRelease']
+    }
+    if (buildsReleaseArtifact && !releaseSigningConfigured) {
+        throw new GradleException('Release signing is not configured. Use the local release build script to provide the keystore credentials.')
+    }
+}
+
 android {
     namespace 'com.example.taiwanstocktop3'
     compileSdk 35
+
+    buildFeatures {
+        buildConfig true
+    }
 
     defaultConfig {
         applicationId 'com.example.taiwanstocktop3'
@@ -12,6 +33,26 @@ android {
         targetSdk 35
         versionCode 1
         versionName '1.0'
+    }
+
+    signingConfigs {
+        if (releaseSigningConfigured) {
+            release {
+                storeFile file(releaseKeystorePath)
+                storeType 'PKCS12'
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if (releaseSigningConfigured) {
+                signingConfig signingConfigs.release
+            }
+        }
     }
 
     compileOptions {

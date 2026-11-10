@@ -1,10 +1,15 @@
 package com.example.taiwanstocktop3;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +17,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -27,13 +34,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public final class MainActivity extends Activity {
+    private static final String TAG = "TaiwanStockTop3";
+    private static final String UPDATE_PREFS = "app-update-check";
+    private static final String UPDATE_SUCCESSFUL_CHECKED_AT = "last-successful-check-time";
+    private static final String UPDATE_ATTEMPTED_AT = "last-attempted-check-time";
+    private static final long UPDATE_CHECK_INTERVAL_MS = 12L * 60 * 60 * 1000;
+    private static final long UPDATE_RETRY_INTERVAL_MS = 15L * 60 * 1000;
+
     private final ExecutorService syncExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService networkPool = Executors.newFixedThreadPool(4);
+    private final ExecutorService updateCheckExecutor = Executors.newSingleThreadExecutor();
     private StockDatabase database;
     private LinearLayout content;
     private TextView status;
+    private TextView updateCheckLink;
     private Button refreshButton;
     private boolean syncing = false;
+    private boolean checkingForUpdate = false;
 
     private static final int NAVY = Color.rgb(20, 43, 59);
     private static final int GREEN = Color.rgb(45, 126, 98);
@@ -45,6 +62,7 @@ public final class MainActivity extends Activity {
         super.onCreate(state);
         database = new StockDatabase(this);
         buildScreen();
+        checkForAppUpdate(false);
         syncExecutor.execute(() -> {
             List<MarketData.DayRanking> cached = StockAnalyzer.rank(database.readAll());
             runOnUiThread(() -> displayRankings(cached));
@@ -87,6 +105,16 @@ public final class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         statusLp.topMargin = dp(10);
         header.addView(status, statusLp);
+
+        updateCheckLink = label("App v" + BuildConfig.VERSION_NAME + " · 檢查更新", 11,
+                Color.rgb(203, 218, 224), false);
+        updateCheckLink.setClickable(true);
+        updateCheckLink.setFocusable(true);
+        updateCheckLink.setOnClickListener(view -> checkForAppUpdate(true));
+        LinearLayout.LayoutParams updateCheckLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        updateCheckLp.topMargin = dp(6);
+        header.addView(updateCheckLink, updateCheckLp);
         root.addView(header);
 
         ScrollView scroll = new ScrollView(this);
@@ -98,6 +126,100 @@ public final class MainActivity extends Activity {
         root.addView(scroll, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
         setContentView(root);
+    }
+
+    private void checkForAppUpdate(boolean manual) {
+        if (checkingForUpdate) return;
+        SharedPreferences preferences = getSharedPreferences(UPDATE_PREFS, MODE_PRIVATE);
+        long now = System.currentTimeMillis();
+        long lastSuccessfulCheck = preferences.getLong(UPDATE_SUCCESSFUL_CHECKED_AT, 0L);
+        long lastAttempt = preferences.getLong(UPDATE_ATTEMPTED_AT, 0L);
+        if (!manual && isWithinInterval(now, lastSuccessfulCheck, UPDATE_CHECK_INTERVAL_MS)) return;
+        if (!manual && isWithinInterval(now, lastAttempt, UPDATE_RETRY_INTERVAL_MS)) return;
+
+        checkingForUpdate = true;
+        preferences.edit().putLong(UPDATE_ATTEMPTED_AT, now).apply();
+        updateCheckLink.setEnabled(false);
+        if (manual) updateCheckLink.setText("正在檢查更新…");
+
+        updateCheckExecutor.execute(() -> {
+            AppUpdateChecker.Result result = null;
+            IOException failure = null;
+            try {
+                result = AppUpdateChecker.check(BuildConfig.VERSION_NAME);
+            } catch (IOException error) {
+                failure = error;
+            }
+            AppUpdateChecker.Result checkedResult = result;
+            IOException checkFailure = failure;
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
+                checkingForUpdate = false;
+                updateCheckLink.setEnabled(true);
+                updateCheckLink.setText("App v" + BuildConfig.VERSION_NAME + " · 檢查更新");
+                if (checkFailure != null) {
+                    Log.w(TAG, "Unable to check GitHub Releases", checkFailure);
+                    if (manual) toast("目前無法連線檢查更新，請稍後再試。");
+                    return;
+                }
+                if (checkedResult == null) return;
+                getSharedPreferences(UPDATE_PREFS, MODE_PRIVATE).edit()
+                        .putLong(UPDATE_SUCCESSFUL_CHECKED_AT, System.currentTimeMillis())
+                        .apply();
+                handleUpdateCheckResult(checkedResult, manual);
+            });
+        });
+    }
+
+    private static boolean isWithinInterval(long now, long timestamp, long interval) {
+        return timestamp > 0 && now >= timestamp && now - timestamp < interval;
+    }
+
+    private void handleUpdateCheckResult(AppUpdateChecker.Result result, boolean manual) {
+        if (result == null) return;
+        switch (result.status) {
+            case UPDATE_AVAILABLE:
+                showUpdateDialog(result);
+                break;
+            case UP_TO_DATE:
+                if (manual) toast("目前已是最新版本。");
+                break;
+            case NO_RELEASE:
+                if (manual) toast("GitHub 還沒有發布可下載的 APK。");
+                break;
+            case NO_APK:
+                if (manual) toast("最新版本尚未附上 APK 檔案。");
+                break;
+            case INVALID_VERSION:
+                if (manual) toast("最新 Release 標籤格式無法辨識。");
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void showUpdateDialog(AppUpdateChecker.Result update) {
+        new AlertDialog.Builder(this)
+                .setTitle("發現新版 v" + update.version)
+                .setMessage("有新版 App 可下載。下載後請依 Android 提示確認安裝；更新需使用相同的 App 簽章。")
+                .setPositiveButton("下載 APK", (dialog, which) -> openApkDownload(update.downloadUrl))
+                .setNegativeButton("稍後", null)
+                .show();
+    }
+
+    private void openApkDownload(String downloadUrl) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl));
+            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+            startActivity(intent);
+        } catch (Exception error) {
+            Log.w(TAG, "Unable to open APK download URL", error);
+            toast("無法開啟下載連結，請稍後再試。");
+        }
+    }
+
+    private void toast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     private void syncMarkets() {
@@ -338,6 +460,7 @@ public final class MainActivity extends Activity {
     @Override protected void onDestroy() {
         syncExecutor.shutdownNow();
         networkPool.shutdownNow();
+        updateCheckExecutor.shutdownNow();
         database.close();
         super.onDestroy();
     }
