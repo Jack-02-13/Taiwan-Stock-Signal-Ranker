@@ -1,0 +1,11 @@
+name = "taiwan-stock-ranker-market-data"
+main = "index.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+
+[[kv_namespaces]]
+binding = "MARKET_DATA"
+id = "182c1569c8f6487695ff484c221d12af"
+
+[triggers]
+crons = ["15 6 * * 1-5", "30 7 * * 1-5"]

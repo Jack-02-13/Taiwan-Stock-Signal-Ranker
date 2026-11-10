@@ -170,15 +170,20 @@ function render(data) {
 async function loadRankings() {
   refreshButton.disabled = true;
   refreshButton.querySelector(".refresh-label").textContent = "載入中";
-  statusNode.textContent = "讀取排行資料中…";
+  statusNode.textContent = "重新讀取最新已發布排行…";
   try {
-    const response = await fetch("./data/rankings.json", { cache: "no-store" });
+    const rankingsUrl = new URL("./data/rankings.json", window.location.href);
+    rankingsUrl.searchParams.set("refresh", String(Date.now()));
+    const response = await fetch(rankingsUrl, {
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache" },
+    });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     render(await response.json());
+    statusNode.textContent = `已重新確認最新排行 · ${dateNode.textContent}`;
   } catch (error) {
-    statusNode.textContent = "目前無法載入排行資料";
-    latestList.replaceChildren(makeEmpty("請確認網路連線後按右上角更新。若是第一次使用，請先在 GitHub Actions 執行更新流程。"));
-    console.error("Unable to load rankings", error);
+    statusNode.textContent = `更新排行失敗 · 目前顯示 ${dateNode.textContent} 的資料`;
+    console.warn("Unable to refresh published rankings", error);
   } finally {
     refreshButton.disabled = false;
     refreshButton.querySelector(".refresh-label").textContent = "更新";

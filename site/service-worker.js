@@ -1,4 +1,4 @@
-const CACHE_NAME = "tw-stock-ranker-v1";
+const CACHE_NAME = "tw-stock-ranker-v3-refresh";
 const BASE_URL = new URL("./", self.registration.scope);
 const RANKINGS_URL = new URL("data/rankings.json", BASE_URL);
 const APP_SHELL = [
@@ -45,6 +45,21 @@ self.addEventListener("fetch", (event) => {
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request).catch(async () => (await caches.match(request)) || (await caches.match(new URL("index.html", BASE_URL).href)))
+    );
+    return;
+  }
+
+  if (APP_SHELL.includes(request.url)) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(async () => (await caches.match(request)) || Response.error())
     );
     return;
   }
