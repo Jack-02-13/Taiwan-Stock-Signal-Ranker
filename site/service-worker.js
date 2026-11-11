@@ -1,4 +1,4 @@
-const CACHE_NAME = "tw-stock-ranker-v6-app-1.1.1-parity";
+const CACHE_NAME = "tw-stock-ranker-v7-theme-switch-colors";
 const BASE_URL = new URL("./", self.registration.scope);
 const RANKINGS_URL = new URL("data/rankings.json", BASE_URL);
 const APP_SHELL = [

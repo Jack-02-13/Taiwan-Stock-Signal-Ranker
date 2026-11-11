@@ -128,12 +128,18 @@ h1 {
   padding: 3px;
   overflow: hidden;
   flex: 0 0 auto;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(71, 102, 90, 0.26);
   border-radius: 17px;
-  background: linear-gradient(155deg, rgba(17, 37, 48, 0.94), rgba(40, 61, 70, 0.84));
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.14), 0 3px 9px rgba(10, 30, 40, 0.15);
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.9), rgba(224, 233, 228, 0.88));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.95), 0 3px 9px rgba(38, 67, 55, 0.12);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
+}
+
+:root[data-theme="dark"] .theme-switch {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: linear-gradient(155deg, rgba(17, 37, 48, 0.94), rgba(40, 61, 70, 0.84));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.14), 0 3px 9px rgba(10, 30, 40, 0.15);
 }
 
 .theme-indicator {
@@ -157,7 +163,7 @@ h1 {
   padding: 0;
   border: 0;
   border-radius: 15px;
-  color: rgba(235, 242, 245, 0.78);
+  color: rgba(39, 64, 55, 0.76);
   background: transparent;
   font-size: 12px;
   font-weight: 650;
@@ -166,6 +172,7 @@ h1 {
 }
 
 .theme-option[aria-pressed="true"] { color: #ffffff; font-weight: 750; }
+:root[data-theme="dark"] .theme-option { color: rgba(235, 242, 245, 0.78); }
 
 .refresh-button {
   min-width: 108px;
