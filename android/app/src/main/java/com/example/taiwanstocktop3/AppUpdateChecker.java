@@ -18,7 +18,7 @@ final class AppUpdateChecker {
             "https://api.github.com/repos/Jack-02-13/Taiwan-Stock-Signal-Ranker/releases/latest";
     private static final String ASSET_PATH_PREFIX =
             "/Jack-02-13/Taiwan-Stock-Signal-Ranker/releases/download/";
-    private static final String RELEASE_APK_NAME = "app-release.apk";
+    private static final String RELEASE_APK_NAME_PREFIX = "Taiwan-Stock-Signal-Ranker-v";
 
     enum Status {
         UPDATE_AVAILABLE,
@@ -71,7 +71,7 @@ final class AppUpdateChecker {
                 return new Result(Status.UP_TO_DATE, releaseVersion, null);
             }
 
-            String apkUrl = findApkUrl(release.optJSONArray("assets"));
+            String apkUrl = findApkUrl(release.optJSONArray("assets"), releaseVersion);
             if (apkUrl == null) return new Result(Status.NO_APK, releaseVersion, null);
             return new Result(Status.UPDATE_AVAILABLE, releaseVersion, apkUrl);
         } catch (JSONException | IllegalArgumentException error) {
@@ -81,13 +81,14 @@ final class AppUpdateChecker {
         }
     }
 
-    private static String findApkUrl(JSONArray assets) {
+    private static String findApkUrl(JSONArray assets, String releaseVersion) {
         if (assets == null) return null;
+        String expectedName = RELEASE_APK_NAME_PREFIX + releaseVersion + ".apk";
         for (int index = 0; index < assets.length(); index++) {
             JSONObject asset = assets.optJSONObject(index);
             if (asset == null) continue;
             String name = asset.optString("name", "");
-            if (!RELEASE_APK_NAME.equalsIgnoreCase(name)) continue;
+            if (!expectedName.equalsIgnoreCase(name)) continue;
             String url = asset.optString("browser_download_url", "");
             if (isReleaseApkUrl(url)) return url;
         }

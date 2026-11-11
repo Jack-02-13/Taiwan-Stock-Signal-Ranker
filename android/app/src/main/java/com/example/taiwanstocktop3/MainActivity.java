@@ -407,7 +407,7 @@ public final class MainActivity extends Activity {
     private void showUpdateDialog(AppUpdateChecker.Result update) {
         new AlertDialog.Builder(this)
                 .setTitle("發現新版 v" + update.version)
-                .setMessage("有新版 App 可下載。下載後請依 Android 提示確認安裝；更新需使用相同的 App 簽章。")
+                .setMessage("有新版 App 可下載。下載後請依 Android 提示完成安裝。")
                 .setPositiveButton("下載 APK", (dialog, which) -> openApkDownload(update.downloadUrl))
                 .setNegativeButton("稍後", null)
                 .show();
