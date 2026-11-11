@@ -1,4 +1,4 @@
-const CACHE_NAME = "tw-stock-ranker-v5-twse-only";
+const CACHE_NAME = "tw-stock-ranker-v6-app-1.1.1-parity";
 const BASE_URL = new URL("./", self.registration.scope);
 const RANKINGS_URL = new URL("data/rankings.json", BASE_URL);
 const APP_SHELL = [
