@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T15:45:43Z",
-  "latestDate": "2026-11-16",
+  "generatedAt": "2026-11-17T15:59:28Z",
+  "latestDate": "2026-11-17",
   "historySessionCount": 77,
   "sources": [
     "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX"
@@ -19,8 +19,85 @@
   },
   "rankings": [
     {
+      "date": "2026-11-17",
+      "qualifiedCount": 33,
+      "picks": [
+        {
+          "rank": 1,
+          "symbol": "9933",
+          "name": "中鼎",
+          "close": 56.6,
+          "volumeLots": 53644.22,
+          "volumeShares": 53644219,
+          "score": 140,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "MACD動能增強",
+            "RSI 50至70",
+            "突破20日高點",
+            "突破60日高點",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 2,
+          "symbol": "2891",
+          "name": "中信金",
+          "close": 77.5,
+          "volumeLots": 61151.65,
+          "volumeShares": 61151653,
+          "score": 120,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "MACD動能增強",
+            "RSI 50至70",
+            "KD多方且未過熱",
+            "成交量放大",
+            "OBV偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 3,
+          "symbol": "2355",
+          "name": "敬鵬",
+          "close": 56.5,
+          "volumeLots": 39655.15,
+          "volumeShares": 39655153,
+          "score": 120,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "RSI 50至70",
+            "KD多方且未過熱",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        }
+      ]
+    },
+    {
       "date": "2026-11-16",
-      "qualifiedCount": 51,
+      "qualifiedCount": 50,
       "picks": [
         {
           "rank": 1,
@@ -492,83 +569,6 @@
             "收盤高於20日線",
             "20日線高於60日線",
             "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        }
-      ]
-    },
-    {
-      "date": "2026-11-06",
-      "qualifiedCount": 32,
-      "picks": [
-        {
-          "rank": 1,
-          "symbol": "1416",
-          "name": "廣豐",
-          "close": 16.35,
-          "volumeLots": 19360.13,
-          "volumeShares": 19360132,
-          "score": 130,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 2,
-          "symbol": "1476",
-          "name": "儒鴻",
-          "close": 346.5,
-          "volumeLots": 6615.09,
-          "volumeShares": 6615089,
-          "score": 130,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 3,
-          "symbol": "2610",
-          "name": "華航",
-          "close": 21.2,
-          "volumeLots": 50990.56,
-          "volumeShares": 50990557,
-          "score": 120,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
             "20日線上彎",
             "MACD多方",
             "MACD動能增強",
