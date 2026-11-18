@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T15:59:28Z",
-  "latestDate": "2026-11-17",
+  "generatedAt": "2026-11-18T15:41:00Z",
+  "latestDate": "2026-11-18",
   "historySessionCount": 77,
   "sources": [
     "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX"
@@ -19,8 +19,86 @@
   },
   "rankings": [
     {
+      "date": "2026-11-18",
+      "qualifiedCount": 26,
+      "picks": [
+        {
+          "rank": 1,
+          "symbol": "9933",
+          "name": "中鼎",
+          "close": 57.5,
+          "volumeLots": 71173.27,
+          "volumeShares": 71173275,
+          "score": 140,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "MACD動能增強",
+            "RSI 50至70",
+            "突破20日高點",
+            "突破60日高點",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 2,
+          "symbol": "4977",
+          "name": "眾達-KY",
+          "close": 197.0,
+          "volumeLots": 31331.65,
+          "volumeShares": 31331647,
+          "score": 130,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "MACD動能增強",
+            "RSI 50至70",
+            "KD多方且未過熱",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 3,
+          "symbol": "2618",
+          "name": "長榮航",
+          "close": 46.8,
+          "volumeLots": 32295.66,
+          "volumeShares": 32295656,
+          "score": 120,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "RSI 50至70",
+            "KD多方且未過熱",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        }
+      ]
+    },
+    {
       "date": "2026-11-17",
-      "qualifiedCount": 33,
+      "qualifiedCount": 32,
       "picks": [
         {
           "rank": 1,
@@ -257,7 +335,7 @@
     },
     {
       "date": "2026-11-12",
-      "qualifiedCount": 57,
+      "qualifiedCount": 56,
       "picks": [
         {
           "rank": 1,
@@ -340,7 +418,7 @@
     },
     {
       "date": "2026-11-11",
-      "qualifiedCount": 51,
+      "qualifiedCount": 49,
       "picks": [
         {
           "rank": 1,
@@ -493,87 +571,6 @@
             "KD多方且未過熱",
             "突破20日高點",
             "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        }
-      ]
-    },
-    {
-      "date": "2026-11-09",
-      "qualifiedCount": 30,
-      "picks": [
-        {
-          "rank": 1,
-          "symbol": "3703",
-          "name": "欣陸",
-          "close": 22.45,
-          "volumeLots": 5043.55,
-          "volumeShares": 5043546,
-          "score": 150,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 2,
-          "symbol": "1476",
-          "name": "儒鴻",
-          "close": 356.0,
-          "volumeLots": 4358.59,
-          "volumeShares": 4358587,
-          "score": 140,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 3,
-          "symbol": "2468",
-          "name": "華經",
-          "close": 63.3,
-          "volumeLots": 45739.45,
-          "volumeShares": 45739449,
-          "score": 130,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
             "成交量放大",
             "OBV偏多",
             "MFI偏多",
