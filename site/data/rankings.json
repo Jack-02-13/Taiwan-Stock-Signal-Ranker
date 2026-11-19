@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T15:41:00Z",
-  "latestDate": "2026-11-18",
+  "generatedAt": "2026-11-19T15:44:58Z",
+  "latestDate": "2026-11-19",
   "historySessionCount": 77,
   "sources": [
     "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX"
@@ -19,8 +19,82 @@
   },
   "rankings": [
     {
+      "date": "2026-11-19",
+      "qualifiedCount": 21,
+      "picks": [
+        {
+          "rank": 1,
+          "symbol": "2412",
+          "name": "中華電",
+          "close": 166.0,
+          "volumeLots": 28897.69,
+          "volumeShares": 28897686,
+          "score": 120,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD動能增強",
+            "RSI 50至70",
+            "KD多方且未過熱",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 2,
+          "symbol": "6782",
+          "name": "視陽",
+          "close": 290.5,
+          "volumeLots": 2160.59,
+          "volumeShares": 2160595,
+          "score": 120,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD動能增強",
+            "RSI 50至70",
+            "KD多方且未過熱",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 3,
+          "symbol": "2618",
+          "name": "長榮航",
+          "close": 46.4,
+          "volumeLots": 36151.6,
+          "volumeShares": 36151604,
+          "score": 110,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "RSI 50至70",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        }
+      ]
+    },
+    {
       "date": "2026-11-18",
-      "qualifiedCount": 26,
+      "qualifiedCount": 25,
       "picks": [
         {
           "rank": 1,
@@ -252,7 +326,7 @@
     },
     {
       "date": "2026-11-13",
-      "qualifiedCount": 72,
+      "qualifiedCount": 71,
       "picks": [
         {
           "rank": 1,
@@ -335,7 +409,7 @@
     },
     {
       "date": "2026-11-12",
-      "qualifiedCount": 56,
+      "qualifiedCount": 59,
       "picks": [
         {
           "rank": 1,
@@ -488,86 +562,6 @@
             "MACD多方",
             "MACD動能增強",
             "RSI 50至70",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        }
-      ]
-    },
-    {
-      "date": "2026-11-10",
-      "qualifiedCount": 38,
-      "picks": [
-        {
-          "rank": 1,
-          "symbol": "6112",
-          "name": "邁達特",
-          "close": 57.0,
-          "volumeLots": 17327.42,
-          "volumeShares": 17327416,
-          "score": 140,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 2,
-          "symbol": "3703",
-          "name": "欣陸",
-          "close": 23.95,
-          "volumeLots": 7412.05,
-          "volumeShares": 7412050,
-          "score": 140,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 3,
-          "symbol": "2610",
-          "name": "華航",
-          "close": 22.8,
-          "volumeLots": 100280.63,
-          "volumeShares": 100280630,
-          "score": 130,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
             "KD多方且未過熱",
             "突破20日高點",
             "突破60日高點",
