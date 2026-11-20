@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T15:44:58Z",
-  "latestDate": "2026-11-19",
+  "generatedAt": "2026-11-20T15:27:09Z",
+  "latestDate": "2026-11-20",
   "historySessionCount": 77,
   "sources": [
     "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX"
@@ -19,8 +19,81 @@
   },
   "rankings": [
     {
+      "date": "2026-11-20",
+      "qualifiedCount": 13,
+      "picks": [
+        {
+          "rank": 1,
+          "symbol": "7765",
+          "name": "中華資安",
+          "close": 294.5,
+          "volumeLots": 8577.7,
+          "volumeShares": 8577705,
+          "score": 120,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "MACD動能增強",
+            "RSI 50至70",
+            "KD多方且未過熱",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 2,
+          "symbol": "9933",
+          "name": "中鼎",
+          "close": 51.5,
+          "volumeLots": 25714.94,
+          "volumeShares": 25714941,
+          "score": 110,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "RSI 50至70",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 3,
+          "symbol": "2471",
+          "name": "資通",
+          "close": 62.8,
+          "volumeLots": 23101.85,
+          "volumeShares": 23101850,
+          "score": 110,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "RSI 50至70",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        }
+      ]
+    },
+    {
       "date": "2026-11-19",
-      "qualifiedCount": 21,
+      "qualifiedCount": 20,
       "picks": [
         {
           "rank": 1,
@@ -249,7 +322,7 @@
     },
     {
       "date": "2026-11-16",
-      "qualifiedCount": 50,
+      "qualifiedCount": 49,
       "picks": [
         {
           "rank": 1,
@@ -475,90 +548,6 @@
             "收盤高於20日線",
             "20日線高於60日線",
             "60日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        }
-      ]
-    },
-    {
-      "date": "2026-11-11",
-      "qualifiedCount": 49,
-      "picks": [
-        {
-          "rank": 1,
-          "symbol": "1802",
-          "name": "台玻",
-          "close": 76.7,
-          "volumeLots": 266744.27,
-          "volumeShares": 266744266,
-          "score": 150,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 2,
-          "symbol": "1528",
-          "name": "恩德",
-          "close": 28.2,
-          "volumeLots": 37719.31,
-          "volumeShares": 37719309,
-          "score": 150,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 3,
-          "symbol": "3029",
-          "name": "零壹",
-          "close": 135.0,
-          "volumeLots": 10562.11,
-          "volumeShares": 10562110,
-          "score": 150,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
             "MACD多方",
             "MACD動能增強",
             "RSI 50至70",
