@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T15:27:09Z",
-  "latestDate": "2026-11-20",
+  "generatedAt": "2026-11-23T18:07:05Z",
+  "latestDate": "2026-11-23",
   "historySessionCount": 77,
   "sources": [
     "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX"
@@ -18,6 +18,81 @@
     ]
   },
   "rankings": [
+    {
+      "date": "2026-11-23",
+      "qualifiedCount": 11,
+      "picks": [
+        {
+          "rank": 1,
+          "symbol": "6614",
+          "name": "資拓宏宇",
+          "close": 44.75,
+          "volumeLots": 4716.06,
+          "volumeShares": 4716064,
+          "score": 140,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "MACD動能增強",
+            "KD多方且未過熱",
+            "突破20日高點",
+            "突破60日高點",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 2,
+          "symbol": "2471",
+          "name": "資通",
+          "close": 59.2,
+          "volumeLots": 20777.73,
+          "volumeShares": 20777731,
+          "score": 110,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "RSI 50至70",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 3,
+          "symbol": "7765",
+          "name": "中華資安",
+          "close": 270.0,
+          "volumeLots": 4655.82,
+          "volumeShares": 4655816,
+          "score": 110,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "RSI 50至70",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        }
+      ]
+    },
     {
       "date": "2026-11-20",
       "qualifiedCount": 13,
@@ -245,7 +320,7 @@
     },
     {
       "date": "2026-11-17",
-      "qualifiedCount": 32,
+      "qualifiedCount": 31,
       "picks": [
         {
           "rank": 1,
@@ -469,89 +544,6 @@
             "MACD多方",
             "MACD動能增強",
             "RSI 50至70",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        }
-      ]
-    },
-    {
-      "date": "2026-11-12",
-      "qualifiedCount": 59,
-      "picks": [
-        {
-          "rank": 1,
-          "symbol": "1802",
-          "name": "台玻",
-          "close": 81.7,
-          "volumeLots": 486399.1,
-          "volumeShares": 486399100,
-          "score": 150,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 2,
-          "symbol": "2355",
-          "name": "敬鵬",
-          "close": 60.7,
-          "volumeLots": 39293.68,
-          "volumeShares": 39293685,
-          "score": 150,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 3,
-          "symbol": "3701",
-          "name": "大眾控",
-          "close": 69.5,
-          "volumeLots": 21308.64,
-          "volumeShares": 21308641,
-          "score": 140,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
             "突破20日高點",
             "突破60日高點",
             "成交量放大",
