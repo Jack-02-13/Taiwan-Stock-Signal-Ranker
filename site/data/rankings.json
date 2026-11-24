@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-23T18:07:05Z",
-  "latestDate": "2026-11-23",
+  "generatedAt": "2026-11-24T17:44:01Z",
+  "latestDate": "2026-11-24",
   "historySessionCount": 77,
   "sources": [
     "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX"
@@ -18,6 +18,78 @@
     ]
   },
   "rankings": [
+    {
+      "date": "2026-11-24",
+      "qualifiedCount": 21,
+      "picks": [
+        {
+          "rank": 1,
+          "symbol": "2610",
+          "name": "華航",
+          "close": 22.5,
+          "volumeLots": 101676.01,
+          "volumeShares": 101676009,
+          "score": 110,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD動能增強",
+            "RSI 50至70",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 2,
+          "symbol": "9933",
+          "name": "中鼎",
+          "close": 54.0,
+          "volumeLots": 48020.74,
+          "volumeShares": 48020739,
+          "score": 110,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "RSI 50至70",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 3,
+          "symbol": "2323",
+          "name": "中環",
+          "close": 11.7,
+          "volumeLots": 29323.93,
+          "volumeShares": 29323934,
+          "score": 110,
+          "signals": [
+            "收盤高於20日線",
+            "60日線上彎",
+            "MACD多方",
+            "MACD動能增強",
+            "RSI 50至70",
+            "KD多方且未過熱",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        }
+      ]
+    },
     {
       "date": "2026-11-23",
       "qualifiedCount": 11,
@@ -242,7 +314,7 @@
     },
     {
       "date": "2026-11-18",
-      "qualifiedCount": 25,
+      "qualifiedCount": 24,
       "picks": [
         {
           "rank": 1,
@@ -463,89 +535,6 @@
             "MACD多方",
             "RSI 50至70",
             "KD多方且未過熱",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        }
-      ]
-    },
-    {
-      "date": "2026-11-13",
-      "qualifiedCount": 71,
-      "picks": [
-        {
-          "rank": 1,
-          "symbol": "3029",
-          "name": "零壹",
-          "close": 138.0,
-          "volumeLots": 8648.05,
-          "volumeShares": 8648047,
-          "score": 150,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 2,
-          "symbol": "6689",
-          "name": "伊雲谷",
-          "close": 82.0,
-          "volumeLots": 5509.87,
-          "volumeShares": 5509872,
-          "score": 150,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 3,
-          "symbol": "1802",
-          "name": "台玻",
-          "close": 85.1,
-          "volumeLots": 443099.87,
-          "volumeShares": 443099867,
-          "score": 140,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "突破20日高點",
-            "突破60日高點",
             "成交量放大",
             "OBV偏多",
             "MFI偏多",
