@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T17:12:51Z",
-  "latestDate": "2026-11-25",
+  "generatedAt": "2026-11-26T16:53:43Z",
+  "latestDate": "2026-11-26",
   "historySessionCount": 77,
   "sources": [
     "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX"
@@ -18,6 +18,83 @@
     ]
   },
   "rankings": [
+    {
+      "date": "2026-11-26",
+      "qualifiedCount": 21,
+      "picks": [
+        {
+          "rank": 1,
+          "symbol": "1477",
+          "name": "聚陽",
+          "close": 233.0,
+          "volumeLots": 3105.16,
+          "volumeShares": 3105160,
+          "score": 140,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "MACD動能增強",
+            "KD多方且未過熱",
+            "突破20日高點",
+            "突破60日高點",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 2,
+          "symbol": "2471",
+          "name": "資通",
+          "close": 66.1,
+          "volumeLots": 21459.14,
+          "volumeShares": 21459136,
+          "score": 120,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD多方",
+            "MACD動能增強",
+            "RSI 50至70",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        },
+        {
+          "rank": 3,
+          "symbol": "2516",
+          "name": "新建",
+          "close": 17.1,
+          "volumeLots": 6001.42,
+          "volumeShares": 6001418,
+          "score": 120,
+          "signals": [
+            "收盤高於20日線",
+            "20日線高於60日線",
+            "60日線上彎",
+            "20日線上彎",
+            "MACD動能增強",
+            "RSI 50至70",
+            "KD多方且未過熱",
+            "成交量放大",
+            "OBV偏多",
+            "MFI偏多",
+            "ADX趨勢偏多",
+            "20日報酬為正"
+          ]
+        }
+      ]
+    },
     {
       "date": "2026-11-25",
       "qualifiedCount": 16,
@@ -243,7 +320,7 @@
     },
     {
       "date": "2026-11-20",
-      "qualifiedCount": 13,
+      "qualifiedCount": 12,
       "picks": [
         {
           "rank": 1,
@@ -390,7 +467,7 @@
     },
     {
       "date": "2026-11-18",
-      "qualifiedCount": 24,
+      "qualifiedCount": 25,
       "picks": [
         {
           "rank": 1,
@@ -448,83 +525,6 @@
           "close": 46.8,
           "volumeLots": 32295.66,
           "volumeShares": 32295656,
-          "score": 120,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "RSI 50至70",
-            "KD多方且未過熱",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        }
-      ]
-    },
-    {
-      "date": "2026-11-17",
-      "qualifiedCount": 31,
-      "picks": [
-        {
-          "rank": 1,
-          "symbol": "9933",
-          "name": "中鼎",
-          "close": 56.6,
-          "volumeLots": 53644.22,
-          "volumeShares": 53644219,
-          "score": 140,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "突破20日高點",
-            "突破60日高點",
-            "成交量放大",
-            "OBV偏多",
-            "MFI偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 2,
-          "symbol": "2891",
-          "name": "中信金",
-          "close": 77.5,
-          "volumeLots": 61151.65,
-          "volumeShares": 61151653,
-          "score": 120,
-          "signals": [
-            "收盤高於20日線",
-            "20日線高於60日線",
-            "60日線上彎",
-            "20日線上彎",
-            "MACD多方",
-            "MACD動能增強",
-            "RSI 50至70",
-            "KD多方且未過熱",
-            "成交量放大",
-            "OBV偏多",
-            "ADX趨勢偏多",
-            "20日報酬為正"
-          ]
-        },
-        {
-          "rank": 3,
-          "symbol": "2355",
-          "name": "敬鵬",
-          "close": 56.5,
-          "volumeLots": 39655.15,
-          "volumeShares": 39655153,
           "score": 120,
           "signals": [
             "收盤高於20日線",
